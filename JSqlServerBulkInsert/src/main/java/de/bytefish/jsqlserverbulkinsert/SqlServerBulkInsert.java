@@ -9,7 +9,6 @@ import de.bytefish.jsqlserverbulkinsert.functional.Func2;
 import de.bytefish.jsqlserverbulkinsert.model.ColumnDefinition;
 import de.bytefish.jsqlserverbulkinsert.model.ColumnMetaData;
 import de.bytefish.jsqlserverbulkinsert.model.TableDefinition;
-import de.bytefish.jsqlserverbulkinsert.sqlserver.converters.IValueConverterProvider;
 import de.bytefish.jsqlserverbulkinsert.records.SqlServerRecordBuilder;
 
 import java.math.BigDecimal;
