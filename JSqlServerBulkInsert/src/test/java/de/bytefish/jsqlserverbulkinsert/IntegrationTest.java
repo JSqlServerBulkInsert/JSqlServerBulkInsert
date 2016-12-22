@@ -33,14 +33,16 @@ public class IntegrationTest extends TransactionalTestBase {
 
     @Test
     public void bulkInsertPersonDataTest() throws SQLException {
+        // The Number of Entities to insert:
+        int numEntities = 1000000;
         // Create a large list of Persons:
-        List<Person> persons = getPersonList(100000);
+        List<Person> persons = getPersonList(numEntities);
         // Create the BulkInserter:
         PersonBulkInserter personBulkInserter = new PersonBulkInserter();
         // Now save all entities of a given stream:
         personBulkInserter.saveAll(connection, persons.stream());
         // And assert all have been written to the database:
-        Assert.assertEquals(100000, getRowCount());
+        Assert.assertEquals(numEntities, getRowCount());
     }
 
     private List<Person> getPersonList(int numPersons) {
@@ -77,9 +79,9 @@ public class IntegrationTest extends TransactionalTestBase {
 
         Statement s = connection.createStatement();
 
-        ResultSet r = s.executeQuery("SELECT COUNT(*) AS rowcount FROM [dbo].[UnitTest]");
+        ResultSet r = s.executeQuery("SELECT COUNT(*) AS total FROM [dbo].[UnitTest];");
         r.next();
-        int count = r.getInt("rowcount");
+        int count = r.getInt("total");
         r.close();
 
         return count;

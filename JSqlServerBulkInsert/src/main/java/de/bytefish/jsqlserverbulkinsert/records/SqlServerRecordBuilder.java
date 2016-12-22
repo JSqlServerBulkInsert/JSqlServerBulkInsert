@@ -12,32 +12,19 @@ import java.util.stream.Collectors;
 public class SqlServerRecordBuilder<TEntity> {
 
     private final List<ColumnDefinition<TEntity>> columns;
-    private final List<ColumnMetaData> columnMetaData;
 
     public SqlServerRecordBuilder(List<ColumnDefinition<TEntity>> columns) {
         if(columns == null) {
             throw new IllegalArgumentException("columns");
         }
-
-        // Holds the Columns:
         this.columns = columns;
-
-        // Cache the Column Meta Data, so we don't calculate it for each Record:
-        this.columnMetaData = columns.stream()
-                .map(x -> x.getColumnMetaData())
-                .collect(Collectors.toList());
     }
 
-    public SqlServerRecord build(final TEntity entity) {
-
+    public Object[] build(final TEntity entity) {
         // Get the Values for each column:
-        Object[] values = columns.stream()
+        return columns.stream()
                 .map(x -> x.getPropertyValue(entity))
                 .toArray();
-
-        // And finally build the SqlServerRecord:
-        return new SqlServerRecord(columnMetaData, values);
-
     }
 
 }

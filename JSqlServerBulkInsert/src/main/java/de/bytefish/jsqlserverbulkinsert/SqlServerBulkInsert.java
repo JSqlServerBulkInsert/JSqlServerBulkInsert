@@ -5,10 +5,12 @@ package de.bytefish.jsqlserverbulkinsert;
 
 import com.microsoft.sqlserver.jdbc.ISQLServerBulkRecord;
 import com.microsoft.sqlserver.jdbc.SQLServerBulkCopy;
+import com.microsoft.sqlserver.jdbc.SQLServerBulkCopyOptions;
 import de.bytefish.jsqlserverbulkinsert.functional.Func2;
 import de.bytefish.jsqlserverbulkinsert.model.ColumnDefinition;
 import de.bytefish.jsqlserverbulkinsert.model.ColumnMetaData;
 import de.bytefish.jsqlserverbulkinsert.model.TableDefinition;
+import de.bytefish.jsqlserverbulkinsert.records.SqlServerRecord;
 import de.bytefish.jsqlserverbulkinsert.records.SqlServerRecordBuilder;
 
 import java.math.BigDecimal;
@@ -36,17 +38,26 @@ public abstract class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInse
     }
 
     public void saveAll(Connection connection, Stream<TEntity> entities) throws SQLException {
+        saveAll(connection, new SQLServerBulkCopyOptions(), entities);
+    }
+
+    public void saveAll(Connection connection, SQLServerBulkCopyOptions options, Stream<TEntity> entities) throws SQLException {
 
         final SqlServerRecordBuilder<TEntity> sqlServerRecordBuilder = new SqlServerRecordBuilder<>(columns);
 
         try (SQLServerBulkCopy sqlServerBulkCopy = new SQLServerBulkCopy(connection)) {
 
+            // Set the Options:
+            sqlServerBulkCopy.setBulkCopyOptions(options);
+
             // The Destination Table to write to:
             sqlServerBulkCopy.setDestinationTableName(table.GetFullQualifiedTableName());
 
-            entities
-                    .map(x -> sqlServerRecordBuilder.build(x))
-                    .forEach(x -> internalWriteToServer(sqlServerBulkCopy, x));
+            // The SQL Records to insert:
+            ISQLServerBulkRecord record = new SqlServerRecord<TEntity>(columns, entities.iterator());
+
+            // Finally start the Bulk Copy Process:
+            internalWriteToServer(sqlServerBulkCopy, record);
         }
     }
 

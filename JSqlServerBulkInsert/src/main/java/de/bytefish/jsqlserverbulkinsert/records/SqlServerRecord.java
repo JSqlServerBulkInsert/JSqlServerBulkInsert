@@ -5,27 +5,40 @@ package de.bytefish.jsqlserverbulkinsert.records;
 
 import com.microsoft.sqlserver.jdbc.ISQLServerBulkRecord;
 import com.microsoft.sqlserver.jdbc.SQLServerException;
+import de.bytefish.jsqlserverbulkinsert.model.ColumnDefinition;
 import de.bytefish.jsqlserverbulkinsert.model.ColumnMetaData;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
-public class SqlServerRecord implements ISQLServerBulkRecord {
+public class SqlServerRecord<TEntity> implements ISQLServerBulkRecord {
+
+    private final Iterator<TEntity> entities;
 
     private final List<ColumnMetaData> columnMetaData;
-    private final Object[] values;
 
-    public SqlServerRecord(List<ColumnMetaData> columnMetaData, Object[] values) {
-        if(columnMetaData == null) {
-            throw new IllegalArgumentException("columnMetaData");
+    private final SqlServerRecordBuilder<TEntity> builder;
+
+    public SqlServerRecord(List<ColumnDefinition<TEntity>> columnDefinition, Iterator<TEntity> entities) {
+        if(columnDefinition == null) {
+            throw new IllegalArgumentException("columnDefinition");
         }
-        if(values == null) {
-            throw new IllegalArgumentException("values");
+        if(entities == null) {
+            throw new IllegalArgumentException("entities");
         }
-        this.columnMetaData = columnMetaData;
-        this.values = values;
+        this.entities = entities;
+
+        // Cache the Column Meta Data, so we don't calculate it for each Record:
+        this.columnMetaData = columnDefinition.stream()
+                .map(x -> x.getColumnMetaData())
+                .collect(Collectors.toList());
+
+        // Cache a Values Builder to populate Records faster:
+        this.builder = new SqlServerRecordBuilder<TEntity>(columnDefinition);
     }
 
     @Override
@@ -64,11 +77,13 @@ public class SqlServerRecord implements ISQLServerBulkRecord {
 
     @Override
     public Object[] getRowData() throws SQLServerException {
-        return values;
+        TEntity entity = entities.next();
+
+        return builder.build(entity);
     }
 
     @Override
     public boolean next() throws SQLServerException {
-        return false;
+        return entities.hasNext();
     }
 }
