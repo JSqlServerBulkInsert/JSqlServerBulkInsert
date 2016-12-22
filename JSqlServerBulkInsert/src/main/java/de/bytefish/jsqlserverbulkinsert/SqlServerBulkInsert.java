@@ -123,6 +123,10 @@ public abstract class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInse
         addColumn(columnName, 2014, propertyGetter);
     }
 
+    protected void mapString(String columnName, Func2<TEntity, String> propertyGetter) {
+        addColumn(columnName, Types.NVARCHAR, propertyGetter);
+    }
+
     private void addColumn(String name, int type, boolean isAutoIncrement, Func2<TEntity, Object> propertyGetter)
     {
         // Create the current Column Meta Data:

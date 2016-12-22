@@ -32,34 +32,34 @@ public class SqlServerRecord implements ISQLServerBulkRecord {
     public Set<Integer> getColumnOrdinals() {
         // Simply return the length of the List:
         return IntStream
-                .range(0, columnMetaData.size())
+                .range(1, columnMetaData.size() + 1)
                 .boxed()
                 .collect(Collectors.toSet());
     }
 
     @Override
     public String getColumnName(int i) {
-        return columnMetaData.get(i).getName();
+        return columnMetaData.get(i-1).getName();
     }
 
     @Override
     public int getColumnType(int i) {
-        return columnMetaData.get(i).getType();
+        return columnMetaData.get(i-1).getType();
     }
 
     @Override
     public int getPrecision(int i) {
-        return columnMetaData.get(i).getPrecision();
+        return columnMetaData.get(i-1).getPrecision();
     }
 
     @Override
     public int getScale(int i) {
-        return columnMetaData.get(i).getScale();
+        return columnMetaData.get(i-1).getScale();
     }
 
     @Override
     public boolean isAutoIncrement(int i) {
-        return columnMetaData.get(i).isAutoIncrement();
+        return columnMetaData.get(i-1).isAutoIncrement();
     }
 
     @Override
