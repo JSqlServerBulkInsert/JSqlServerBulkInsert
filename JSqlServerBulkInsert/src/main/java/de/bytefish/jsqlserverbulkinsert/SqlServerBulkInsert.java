@@ -126,12 +126,17 @@ public abstract class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInse
         addColumn(columnName, Types.DOUBLE, propertyGetter);
     }
 
-    protected void mapSmallInt(String columnName, Func2<TEntity, String> propertyGetter)
+    protected void mapInt(String columnName, Func2<TEntity, Integer> propertyGetter)
+    {
+        addColumn(columnName, Types.INTEGER, propertyGetter);
+    }
+
+    protected void mapSmallInt(String columnName, Func2<TEntity, Short> propertyGetter)
     {
         addColumn(columnName, Types.SMALLINT, propertyGetter);
     }
 
-    protected void mapTinyInt(String columnName, Func2<TEntity, String> propertyGetter)
+    protected void mapTinyInt(String columnName, Func2<TEntity, Byte> propertyGetter)
     {
         addColumn(columnName, Types.TINYINT, propertyGetter);
     }
