@@ -78,13 +78,15 @@ public abstract class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInse
         addColumn(columnName, Types.NUMERIC, precision, scale, false, propertyGetter);
     }
 
-    protected void mapDecimal(String columnName, int scale, int precision, Func2<TEntity, BigDecimal> propertyGetter)
+    protected void mapDecimal(String columnName, int precision, int scale, Func2<TEntity, BigDecimal> propertyGetter)
     {
         // We need to scale the incoming decimal, before writing it to SQL Server:
         final Func2<TEntity, BigDecimal> wrapper = entity -> {
-            BigDecimal result = propertyGetter.invoke(entity);
+            BigDecimal result = propertyGetter
+                    .invoke(entity)
+                    .setScale(10, BigDecimal.ROUND_HALF_UP);
 
-            return result.setScale(scale, RoundingMode.HALF_UP);
+            return result;
         };
 
         addColumn(columnName, Types.DECIMAL, precision, scale, false, wrapper);

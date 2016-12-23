@@ -1,8 +1,11 @@
 // Copyright (c) Philipp Wagner. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-package de.bytefish.jsqlserverbulkinsert;
+package de.bytefish.jsqlserverbulkinsert.test.integration;
 
+import de.bytefish.jsqlserverbulkinsert.test.model.Person;
+import de.bytefish.jsqlserverbulkinsert.SqlServerBulkInsert;
+import de.bytefish.jsqlserverbulkinsert.test.base.TransactionalTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
