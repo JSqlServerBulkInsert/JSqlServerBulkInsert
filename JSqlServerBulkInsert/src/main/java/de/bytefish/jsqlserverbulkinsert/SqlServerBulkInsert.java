@@ -73,11 +73,12 @@ public abstract class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInse
     }
 
     protected void mapNumeric(String columnName, int precision, int scale, Func2<TEntity, BigDecimal> propertyGetter) {
+
         // We need to scale the incoming decimal, before writing it to SQL Server:
         final Func2<TEntity, BigDecimal> wrapper = entity -> {
             BigDecimal result = propertyGetter
                     .invoke(entity)
-                    .setScale(10, BigDecimal.ROUND_HALF_UP);
+                    .setScale(scale, BigDecimal.ROUND_HALF_UP);
 
             return result;
         };
@@ -91,7 +92,7 @@ public abstract class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInse
         final Func2<TEntity, BigDecimal> wrapper = entity -> {
             BigDecimal result = propertyGetter
                     .invoke(entity)
-                    .setScale(10, BigDecimal.ROUND_HALF_UP);
+                    .setScale(scale, BigDecimal.ROUND_HALF_UP);
 
             return result;
         };
