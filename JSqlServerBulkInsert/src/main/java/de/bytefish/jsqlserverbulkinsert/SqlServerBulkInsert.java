@@ -70,12 +70,20 @@ public abstract class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInse
     }
 
     protected void mapBoolean(String columnName, Func2<TEntity, Boolean> propertyGetter) {
-        addColumn(columnName, Types.BOOLEAN, propertyGetter);
+        addColumn(columnName, Types.BIT, propertyGetter);
     }
 
-    protected void mapNumeric(String columnName, int scale, int precision, Func2<TEntity, BigDecimal> propertyGetter)
-    {
-        addColumn(columnName, Types.NUMERIC, precision, scale, false, propertyGetter);
+    protected void mapNumeric(String columnName, int scale, int precision, Func2<TEntity, BigDecimal> propertyGetter) {
+        // We need to scale the incoming decimal, before writing it to SQL Server:
+        final Func2<TEntity, BigDecimal> wrapper = entity -> {
+            BigDecimal result = propertyGetter
+                    .invoke(entity)
+                    .setScale(10, BigDecimal.ROUND_HALF_UP);
+
+            return result;
+        };
+
+        addColumn(columnName, Types.NUMERIC, precision, scale, false, wrapper);
     }
 
     protected void mapDecimal(String columnName, int precision, int scale, Func2<TEntity, BigDecimal> propertyGetter)
