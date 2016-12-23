@@ -3,34 +3,34 @@
 
 package de.bytefish.jsqlserverbulkinsert.test.mapping;
 
-import com.microsoft.sqlserver.jdbc.SQLServerBulkCopy;
+import com.microsoft.sqlserver.jdbc.SQLServerBulkCopyOptions;
 import de.bytefish.jsqlserverbulkinsert.SqlServerBulkInsert;
 import de.bytefish.jsqlserverbulkinsert.test.base.TransactionalTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.math.BigInteger;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 
-public class BigIntegerMappingTest extends TransactionalTestBase {
+public class AutoIncrementIntMappingTest extends TransactionalTestBase {
 
-    private class BigIntegerEntity extends SampleEntity<BigInteger> {
+    private class IntegerEntity extends SampleEntity<Integer> {
 
-        public BigIntegerEntity(BigInteger value) {
+        public IntegerEntity(Integer value) {
             super(value);
         }
     }
 
-    private class BigIntegerInsert extends SqlServerBulkInsert<BigIntegerEntity> {
+    private class IntegerInsert extends SqlServerBulkInsert<IntegerEntity> {
 
-        public BigIntegerInsert() {
+        public IntegerInsert() {
             super("dbo", "UnitTest");
 
-            mapBigInt("BigIntegerValue", BigIntegerEntity::getValue);
+            mapInt("PK_ID", x -> null);
+            mapInt("IntegerValue", IntegerEntity::getValue);
         }
 
     }
@@ -42,11 +42,11 @@ public class BigIntegerMappingTest extends TransactionalTestBase {
 
     @Test
     public void bulkInsertPersonDataTest() throws SQLException {
-        BigInteger BigIntegerValue = new BigInteger("47878778228484");
+        Integer IntegerValue = 12;
         // Create the Value:
-        List<BigIntegerEntity> entities = Arrays.asList(new BigIntegerEntity(BigIntegerValue));
+        List<IntegerEntity> entities = Arrays.asList(new IntegerEntity(IntegerValue), new IntegerEntity(IntegerValue));
         // Create the BulkInserter:
-        BigIntegerInsert localDateInsert = new BigIntegerInsert();
+        IntegerInsert localDateInsert = new IntegerInsert();
         // Now save all entities of a given stream:
         localDateInsert.saveAll(connection, entities.stream());
         // And assert all have been written to the database:
@@ -54,9 +54,17 @@ public class BigIntegerMappingTest extends TransactionalTestBase {
         // We have a Value:
         Assert.assertEquals(true, rs.next());
         // Get the Date we have written:
-        long resultBigIntegerValue = rs.getLong("BigIntegerValue");
+        Integer resultIntegerValue = rs.getInt("PK_ID");
         // Assert both are equal:
-        Assert.assertEquals(BigIntegerValue.longValueExact(), resultBigIntegerValue);
+        Assert.assertEquals(new Integer(1), resultIntegerValue);
+
+        // We have a second Value:
+        Assert.assertEquals(true, rs.next());
+        // Get the Date we have written:
+        Integer resultSecondIntegerValue = rs.getInt("PK_ID");
+        // Assert both are equal:
+        Assert.assertEquals(new Integer(2), resultSecondIntegerValue);
+
         // Assert only one record was read:
         Assert.assertEquals(false, rs.next());
     }
@@ -73,7 +81,8 @@ public class BigIntegerMappingTest extends TransactionalTestBase {
     private void createTestTable() throws SQLException {
         String sqlStatement = "CREATE TABLE [dbo].[UnitTest]\n" +
                 "            (\n" +
-                "                BigIntegerValue bigint\n" +
+                "                PK_ID INT IDENTITY(1,1) PRIMARY KEY,\n" +
+                "                IntegerValue INT" +
                 "            );";
 
         Statement statement = connection.createStatement();

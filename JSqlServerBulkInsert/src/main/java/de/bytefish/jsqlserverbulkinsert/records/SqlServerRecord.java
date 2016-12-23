@@ -4,6 +4,7 @@
 package de.bytefish.jsqlserverbulkinsert.records;
 
 import com.microsoft.sqlserver.jdbc.ISQLServerBulkRecord;
+import com.microsoft.sqlserver.jdbc.SQLServerBulkCopy;
 import com.microsoft.sqlserver.jdbc.SQLServerException;
 import de.bytefish.jsqlserverbulkinsert.model.ColumnDefinition;
 import de.bytefish.jsqlserverbulkinsert.model.ColumnMetaData;

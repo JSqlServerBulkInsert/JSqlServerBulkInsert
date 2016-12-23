@@ -15,7 +15,6 @@ import de.bytefish.jsqlserverbulkinsert.records.SqlServerRecordBuilder;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
