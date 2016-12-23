@@ -117,6 +117,10 @@ public abstract class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInse
         addColumn(columnName, Types.BIGINT, wrapper);
     }
 
+    protected void mapBigIntLong(String columnName, Func2<TEntity, Long> propertyGetter) {
+        addColumn(columnName, Types.BIGINT, propertyGetter);
+    }
+
     protected void mapDate(String columnName, Func2<TEntity, LocalDate> propertyGetter) {
         addColumn(columnName, Types.DATE, propertyGetter);
     }
@@ -151,6 +155,10 @@ public abstract class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInse
 
     protected void mapString(String columnName, Func2<TEntity, String> propertyGetter) {
         addColumn(columnName, Types.NVARCHAR, propertyGetter);
+    }
+
+    protected void mapVarBinary(String columnName, int maxLength, Func2<TEntity, byte[]> propertyGetter) {
+        addColumn(columnName, Types.VARBINARY, maxLength, 0, false, propertyGetter);
     }
 
     private void addColumn(String name, int type, boolean isAutoIncrement, Func2<TEntity, Object> propertyGetter)

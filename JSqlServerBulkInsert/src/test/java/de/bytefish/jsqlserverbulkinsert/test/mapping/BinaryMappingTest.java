@@ -14,21 +14,21 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 
-public class IntMappingTest extends TransactionalTestBase {
+public class BinaryMappingTest extends TransactionalTestBase {
 
-    private class IntegerEntity extends SampleEntity<Integer> {
+    private class BinaryDataEntity extends SampleEntity<byte[]> {
 
-        public IntegerEntity(Integer value) {
+        public BinaryDataEntity(byte[] value) {
             super(value);
         }
     }
 
-    private class IntegerInsert extends SqlServerBulkInsert<IntegerEntity> {
+    private class ByteInsert extends SqlServerBulkInsert<BinaryDataEntity> {
 
-        public IntegerInsert() {
+        public ByteInsert() {
             super("dbo", "UnitTest");
 
-            mapInt("IntegerValue", IntegerEntity::getValue);
+            mapVarBinary("ByteValue", 255, BinaryDataEntity::getValue);
         }
 
     }
@@ -40,11 +40,11 @@ public class IntMappingTest extends TransactionalTestBase {
 
     @Test
     public void bulkInsertPersonDataTest() throws SQLException {
-        Integer IntegerValue = 214483647;
+        byte[] binaryDataValue = new byte[] { 1, 2, 3};
         // Create the Value:
-        List<IntegerEntity> entities = Arrays.asList(new IntegerEntity(IntegerValue));
+        List<BinaryDataEntity> entities = Arrays.asList(new BinaryDataEntity(binaryDataValue));
         // Create the BulkInserter:
-        IntegerInsert localDateInsert = new IntegerInsert();
+        ByteInsert localDateInsert = new ByteInsert();
         // Now save all entities of a given stream:
         localDateInsert.saveAll(connection, entities.stream());
         // And assert all have been written to the database:
@@ -52,9 +52,13 @@ public class IntMappingTest extends TransactionalTestBase {
         // We have a Value:
         Assert.assertEquals(true, rs.next());
         // Get the Date we have written:
-        Integer resultIntegerValue = rs.getInt("IntegerValue");
+        byte[] resultByteValue = rs.getBytes("ByteValue");
         // Assert both are equal:
-        Assert.assertEquals(IntegerValue, resultIntegerValue);
+        Assert.assertEquals(binaryDataValue.length, resultByteValue.length);
+        // Check Content:
+        for(int i = 0; i < resultByteValue.length; i++) {
+            Assert.assertEquals((byte) binaryDataValue[i], (byte) resultByteValue[i]);
+        }
         // Assert only one record was read:
         Assert.assertEquals(false, rs.next());
     }
@@ -71,7 +75,7 @@ public class IntMappingTest extends TransactionalTestBase {
     private void createTestTable() throws SQLException {
         String sqlStatement = "CREATE TABLE [dbo].[UnitTest]\n" +
                 "            (\n" +
-                "                IntegerValue INT\n" +
+                "                ByteValue VARBINARY(255)\n" +
                 "            );";
 
         Statement statement = connection.createStatement();
