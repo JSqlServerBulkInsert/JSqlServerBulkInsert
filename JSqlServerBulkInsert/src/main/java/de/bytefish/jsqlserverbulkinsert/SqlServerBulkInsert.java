@@ -73,7 +73,7 @@ public abstract class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInse
         addColumn(columnName, Types.BIT, propertyGetter);
     }
 
-    protected void mapNumeric(String columnName, int scale, int precision, Func2<TEntity, BigDecimal> propertyGetter) {
+    protected void mapNumeric(String columnName, int precision, int scale, Func2<TEntity, BigDecimal> propertyGetter) {
         // We need to scale the incoming decimal, before writing it to SQL Server:
         final Func2<TEntity, BigDecimal> wrapper = entity -> {
             BigDecimal result = propertyGetter
