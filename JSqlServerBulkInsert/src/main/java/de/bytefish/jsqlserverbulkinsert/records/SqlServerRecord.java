@@ -4,7 +4,6 @@
 package de.bytefish.jsqlserverbulkinsert.records;
 
 import com.microsoft.sqlserver.jdbc.ISQLServerBulkRecord;
-import com.microsoft.sqlserver.jdbc.SQLServerBulkCopy;
 import com.microsoft.sqlserver.jdbc.SQLServerException;
 import de.bytefish.jsqlserverbulkinsert.model.ColumnDefinition;
 import de.bytefish.jsqlserverbulkinsert.model.ColumnMetaData;
@@ -14,9 +13,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class SqlServerRecord<TEntity> implements ISQLServerBulkRecord {
+
+    private final Set<Integer> columnOrdinals;
 
     private final Iterator<TEntity> entities;
 
@@ -24,8 +24,9 @@ public class SqlServerRecord<TEntity> implements ISQLServerBulkRecord {
 
     private final SqlServerRecordBuilder<TEntity> builder;
 
-    public SqlServerRecord(List<ColumnDefinition<TEntity>> columnDefinition, Iterator<TEntity> entities) {
-        if(columnDefinition == null) {
+    public SqlServerRecord(List<ColumnDefinition<TEntity>> columns, Iterator<TEntity> entities) {
+
+        if(columns == null) {
             throw new IllegalArgumentException("columnDefinition");
         }
 
@@ -36,21 +37,23 @@ public class SqlServerRecord<TEntity> implements ISQLServerBulkRecord {
         this.entities = entities;
 
         // Cache the Column Meta Data, so we don't calculate it for each Record:
-        this.columnMetaData = columnDefinition.stream()
-                .map(x -> x.getColumnMetaData())
+        this.columnMetaData = columns.stream()
+                .map(ColumnDefinition::getColumnMetaData)
                 .collect(Collectors.toList());
 
-        // Cache a Values Builder to populate Records faster:
-        this.builder = new SqlServerRecordBuilder<TEntity>(columnDefinition);
+        // Build the Object[] values Builder to populate the records faster:
+        this.builder = new SqlServerRecordBuilder<>(columns);
+
+        // Cache the Column Ordinals:
+        this.columnOrdinals = IntStream
+                .range(1, columnMetaData.size() + 1)
+                .boxed()
+                .collect(Collectors.toSet());
     }
 
     @Override
     public Set<Integer> getColumnOrdinals() {
-        // Simply return the length of the List:
-        return IntStream
-                .range(1, columnMetaData.size() + 1)
-                .boxed()
-                .collect(Collectors.toSet());
+        return columnOrdinals;
     }
 
     @Override
