@@ -104,7 +104,7 @@ public class PersonMapping extends AbstractMapping<Person> {
 }
 ```
 
-### Construct and Use the SqlServerBulkInsert ###
+### Construct and use the SqlServerBulkInsert ###
 
 The ``AbstractMapping`` is used to instantiate a ``SqlServerBulkInsert``, which provides a ``saveAll`` method to store a given stream of data.
 
