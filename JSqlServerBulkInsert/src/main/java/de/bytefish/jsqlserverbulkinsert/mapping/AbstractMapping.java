@@ -7,6 +7,7 @@ import de.bytefish.jsqlserverbulkinsert.functional.Func2;
 import de.bytefish.jsqlserverbulkinsert.model.ColumnDefinition;
 import de.bytefish.jsqlserverbulkinsert.model.ColumnMetaData;
 import de.bytefish.jsqlserverbulkinsert.model.TableDefinition;
+import de.bytefish.jsqlserverbulkinsert.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -22,6 +23,11 @@ public abstract class AbstractMapping<TEntity> {
     private TableDefinition table;
 
     private List<ColumnDefinition<TEntity>> columns;
+
+    public AbstractMapping(String tableName)
+    {
+        this("", tableName);
+    }
 
     public AbstractMapping(String schemaName, String tableName)
     {
