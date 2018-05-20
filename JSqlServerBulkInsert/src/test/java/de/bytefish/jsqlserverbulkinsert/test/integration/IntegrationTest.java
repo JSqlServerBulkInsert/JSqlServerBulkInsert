@@ -19,17 +19,6 @@ import java.util.List;
 
 public class IntegrationTest extends TransactionalTestBase {
 
-    private class PersonMapping extends AbstractMapping<Person> {
-
-        public PersonMapping() {
-            super("dbo", "UnitTest");
-
-            mapString("FirstName", Person::getFirstName);
-            mapString("LastName", Person::getLastName);
-            mapDate("BirthDate", Person::getBirthDate);
-        }
-    }
-
     @Override
     protected void onSetUpInTransaction() throws Exception {
         createTable();
@@ -44,7 +33,7 @@ public class IntegrationTest extends TransactionalTestBase {
         // Create the Mapping:
         PersonMapping mapping = new PersonMapping();
         // Create the Bulk Inserter:
-        SqlServerBulkInsert<Person> bulkInsert = new SqlServerBulkInsert<Person>(mapping);
+        SqlServerBulkInsert<Person> bulkInsert = new SqlServerBulkInsert<>(mapping);
         // Now save all entities of a given stream:
         bulkInsert.saveAll(connection, persons.stream());
         // And assert all have been written to the database:
