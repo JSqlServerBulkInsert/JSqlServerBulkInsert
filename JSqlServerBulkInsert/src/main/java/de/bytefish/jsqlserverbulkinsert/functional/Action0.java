@@ -5,5 +5,5 @@ package de.bytefish.jsqlserverbulkinsert.functional;
 
 @FunctionalInterface
 public interface Action0 {
-    void invoke() throws Exception;
+    void invoke();
 }

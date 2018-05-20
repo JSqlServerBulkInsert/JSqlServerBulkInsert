@@ -6,6 +6,7 @@ package de.bytefish.jsqlserverbulkinsert;
 import com.microsoft.sqlserver.jdbc.ISQLServerBulkRecord;
 import com.microsoft.sqlserver.jdbc.SQLServerBulkCopy;
 import com.microsoft.sqlserver.jdbc.SQLServerBulkCopyOptions;
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
 import de.bytefish.jsqlserverbulkinsert.records.SqlServerRecord;
 
@@ -22,11 +23,11 @@ public class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInsert<TEntit
         this.mapping = mapping;
     }
 
-    public void saveAll(Connection connection, Stream<TEntity> entities) throws SQLException {
+    public void saveAll(Connection connection, Stream<TEntity> entities) {
         saveAll(connection, new SQLServerBulkCopyOptions(), entities);
     }
 
-    public void saveAll(Connection connection, SQLServerBulkCopyOptions options, Stream<TEntity> entities) throws SQLException {
+    public void saveAll(Connection connection, SQLServerBulkCopyOptions options, Stream<TEntity> entities) {
         // Create a new SQLServerBulkCopy Instance on the given Connection:
         try (SQLServerBulkCopy sqlServerBulkCopy = new SQLServerBulkCopy(connection)) {
             // Set the Options:
@@ -36,14 +37,10 @@ public class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInsert<TEntit
             // The SQL Records to insert:
             ISQLServerBulkRecord record = new SqlServerRecord<TEntity>(mapping.getColumns(), entities.iterator());
             // Finally start the Bulk Copy Process:
-            internalWriteToServer(sqlServerBulkCopy, record);
-        }
-    }
-
-    public void internalWriteToServer(SQLServerBulkCopy sqlServerBulkCopy, ISQLServerBulkRecord record) {
-        try {
             sqlServerBulkCopy.writeToServer(record);
-        } catch(Exception e) {
+            // Handle Exceptions:
+        } catch (SQLServerException e) {
+            // Wrap it in a RunTimeException to provide a nice API:
             throw new RuntimeException(e);
         }
     }

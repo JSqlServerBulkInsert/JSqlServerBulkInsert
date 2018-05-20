@@ -1,5 +1,6 @@
 # JSqlServerBulkInsert #
 
+[JSqlServerBulkInsert]: https://github.com/bytefish/JSqlServerBulkInsert
 [MIT License]: https://opensource.org/licenses/MIT
 
 [JSqlServerBulkInsert] is a library to simplify Bulk Inserts to the SQL Server. It wraps the ``SQLServerBulkCopy`` behind a nice API.
@@ -12,13 +13,21 @@ You can obtain [JSqlServerBulkInsert] from Maven by adding the following:
 <dependency>
 	<groupId>de.bytefish</groupId>
 	<artifactId>jsqlserverbulkinsert</artifactId>
-	<version>1.0</version>
+	<version>1.1</version>
 </dependency>
 ```
 
 ## Getting Started ##
 
 Imagine ``1,000,000`` Persons should be inserted into an SQL Server database.
+
+### Results ###
+
+Bulk Inserting ``1,000,000``entities to a SQL Server 2016 database took ``5`` Seconds:
+
+```
+[Bulk Insert 1000000 Entities] PT4.559S
+```
 
 ### Domain Model ###
 
@@ -118,6 +127,7 @@ import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
 import de.bytefish.jsqlserverbulkinsert.test.model.Person;
 import de.bytefish.jsqlserverbulkinsert.SqlServerBulkInsert;
 import de.bytefish.jsqlserverbulkinsert.test.base.TransactionalTestBase;
+import de.bytefish.jsqlserverbulkinsert.test.utils.MeasurementUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -145,8 +155,11 @@ public class IntegrationTest extends TransactionalTestBase {
         PersonMapping mapping = new PersonMapping();
         // Create the Bulk Inserter:
         SqlServerBulkInsert<Person> bulkInsert = new SqlServerBulkInsert<>(mapping);
-        // Now save all entities of a given stream:
-        bulkInsert.saveAll(connection, persons.stream());
+        // Measure the Bulk Insert time:
+        MeasurementUtils.MeasureElapsedTime("Bulk Insert 1000000 Entities", () -> {
+            // Now save all entities of a given stream:
+            bulkInsert.saveAll(connection, persons.stream());
+        });
         // And assert all have been written to the database:
         Assert.assertEquals(numEntities, getRowCount());
     }

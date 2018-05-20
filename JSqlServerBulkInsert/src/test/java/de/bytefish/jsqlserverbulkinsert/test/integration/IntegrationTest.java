@@ -7,6 +7,7 @@ import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
 import de.bytefish.jsqlserverbulkinsert.test.model.Person;
 import de.bytefish.jsqlserverbulkinsert.SqlServerBulkInsert;
 import de.bytefish.jsqlserverbulkinsert.test.base.TransactionalTestBase;
+import de.bytefish.jsqlserverbulkinsert.test.utils.MeasurementUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,8 +35,11 @@ public class IntegrationTest extends TransactionalTestBase {
         PersonMapping mapping = new PersonMapping();
         // Create the Bulk Inserter:
         SqlServerBulkInsert<Person> bulkInsert = new SqlServerBulkInsert<>(mapping);
-        // Now save all entities of a given stream:
-        bulkInsert.saveAll(connection, persons.stream());
+        // Measure the Bulk Insert time:
+        MeasurementUtils.MeasureElapsedTime("Bulk Insert 1000000 Entities", () -> {
+            // Now save all entities of a given stream:
+            bulkInsert.saveAll(connection, persons.stream());
+        });
         // And assert all have been written to the database:
         Assert.assertEquals(numEntities, getRowCount());
     }
