@@ -32,7 +32,7 @@ public class TableDefinition {
         if (StringUtils.isNullOrWhiteSpace(schema)) {
             return tableName;
         }
-        return String.format("%1$s.%2$s", schema, tableName);
+        return String.format("[%1$s].[%2$s]", schema, tableName);
     }
 
     @Override
