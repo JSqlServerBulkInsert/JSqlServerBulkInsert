@@ -4,6 +4,7 @@
 package de.bytefish.jsqlserverbulkinsert.test.mapping;
 
 import de.bytefish.jsqlserverbulkinsert.SqlServerBulkInsert;
+import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
 import de.bytefish.jsqlserverbulkinsert.test.base.TransactionalTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -12,6 +13,7 @@ import java.math.BigInteger;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,9 +26,9 @@ public class BigIntegerLongMappingTest extends TransactionalTestBase {
         }
     }
 
-    private class BigIntegerInsert extends SqlServerBulkInsert<BigIntegerEntity> {
+    private class BigIntegerMapping extends AbstractMapping<BigIntegerEntity> {
 
-        public BigIntegerInsert() {
+        public BigIntegerMapping() {
             super("dbo", "UnitTest");
 
             mapBigIntLong("BigIntegerValue", BigIntegerEntity::getValue);
@@ -44,10 +46,12 @@ public class BigIntegerLongMappingTest extends TransactionalTestBase {
         long longValue = 47878778228484l;
         // Create the Value:
         List<BigIntegerEntity> entities = Arrays.asList(new BigIntegerEntity(longValue));
-        // Create the BulkInserter:
-        BigIntegerInsert localDateInsert = new BigIntegerInsert();
+        // Create the Mapping:
+        BigIntegerMapping mapping = new BigIntegerMapping();
+        // Create the Bulk Inserter:
+        SqlServerBulkInsert<BigIntegerEntity> bulkInsert = new SqlServerBulkInsert<>(mapping);
         // Now save all entities of a given stream:
-        localDateInsert.saveAll(connection, entities.stream());
+        bulkInsert.saveAll(connection, entities.stream());
         // And assert all have been written to the database:
         ResultSet rs = getAll();
         // We have a Value:

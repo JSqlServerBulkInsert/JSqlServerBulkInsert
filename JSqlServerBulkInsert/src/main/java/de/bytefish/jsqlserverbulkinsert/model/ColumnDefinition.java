@@ -11,12 +11,15 @@ public class ColumnDefinition<TEntityType>
     private final Func2<TEntityType, Object> propertyGetter;
 
     public ColumnDefinition(ColumnMetaData columnMetaData, Func2<TEntityType, Object> propertyGetter) {
+
         if(columnMetaData == null) {
             throw new IllegalArgumentException("columnMetaData");
         }
+
         if(propertyGetter == null) {
             throw new IllegalArgumentException("propertyGetter");
         }
+
         this.columnMetaData = columnMetaData;
         this.propertyGetter = propertyGetter;
     }

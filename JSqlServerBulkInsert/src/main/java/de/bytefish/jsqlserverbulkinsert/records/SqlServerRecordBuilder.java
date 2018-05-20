@@ -26,5 +26,4 @@ public class SqlServerRecordBuilder<TEntity> {
                 .map(x -> x.getPropertyValue(entity))
                 .toArray();
     }
-
 }

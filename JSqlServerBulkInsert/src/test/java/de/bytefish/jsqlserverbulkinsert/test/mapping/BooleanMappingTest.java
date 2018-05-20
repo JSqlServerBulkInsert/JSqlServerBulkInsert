@@ -4,6 +4,7 @@
 package de.bytefish.jsqlserverbulkinsert.test.mapping;
 
 import de.bytefish.jsqlserverbulkinsert.SqlServerBulkInsert;
+import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
 import de.bytefish.jsqlserverbulkinsert.test.base.TransactionalTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,9 +24,9 @@ public class BooleanMappingTest extends TransactionalTestBase {
         }
     }
 
-    private class BooleanInsert extends SqlServerBulkInsert<BooleanEntity> {
+    private class BooleanEntityMapping extends AbstractMapping<BooleanEntity> {
 
-        public BooleanInsert() {
+        public BooleanEntityMapping() {
             super("dbo", "UnitTest");
 
             mapBoolean("BooleanValue", BooleanEntity::getValue);
@@ -44,9 +45,9 @@ public class BooleanMappingTest extends TransactionalTestBase {
         // Create the Value:
         List<BooleanEntity> entities = Arrays.asList(new BooleanEntity(booleanValue));
         // Create the BulkInserter:
-        BooleanInsert localDateInsert = new BooleanInsert();
+        BooleanEntityMapping mapping = new BooleanEntityMapping();
         // Now save all entities of a given stream:
-        localDateInsert.saveAll(connection, entities.stream());
+        new SqlServerBulkInsert<>(mapping).saveAll(connection, entities.stream());
         // And assert all have been written to the database:
         ResultSet rs = getAll();
         // We have a Value:

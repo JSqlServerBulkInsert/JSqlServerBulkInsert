@@ -4,6 +4,7 @@
 package de.bytefish.jsqlserverbulkinsert.test.mapping;
 
 import de.bytefish.jsqlserverbulkinsert.SqlServerBulkInsert;
+import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
 import de.bytefish.jsqlserverbulkinsert.test.base.TransactionalTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,9 +24,9 @@ public class BinaryMappingTest extends TransactionalTestBase {
         }
     }
 
-    private class ByteInsert extends SqlServerBulkInsert<BinaryDataEntity> {
+    private class ByteDataEntityMapping extends AbstractMapping<BinaryDataEntity> {
 
-        public ByteInsert() {
+        public ByteDataEntityMapping() {
             super("dbo", "UnitTest");
 
             mapVarBinary("ByteValue", 255, BinaryDataEntity::getValue);
@@ -44,9 +45,9 @@ public class BinaryMappingTest extends TransactionalTestBase {
         // Create the Value:
         List<BinaryDataEntity> entities = Arrays.asList(new BinaryDataEntity(binaryDataValue));
         // Create the BulkInserter:
-        ByteInsert localDateInsert = new ByteInsert();
+        ByteDataEntityMapping mapping = new ByteDataEntityMapping();
         // Now save all entities of a given stream:
-        localDateInsert.saveAll(connection, entities.stream());
+        new SqlServerBulkInsert<>(mapping).saveAll(connection, entities.stream());
         // And assert all have been written to the database:
         ResultSet rs = getAll();
         // We have a Value:

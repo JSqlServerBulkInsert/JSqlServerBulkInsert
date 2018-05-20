@@ -4,6 +4,7 @@
 package de.bytefish.jsqlserverbulkinsert.test.mapping;
 
 import de.bytefish.jsqlserverbulkinsert.SqlServerBulkInsert;
+import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
 import de.bytefish.jsqlserverbulkinsert.test.base.TransactionalTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,9 +33,9 @@ public class DecimalMappingTest extends TransactionalTestBase {
         }
     }
 
-    private class BigDecimalInsert extends SqlServerBulkInsert<BigDecimalEntity> {
+    private class BigDecimalEntityMapping extends AbstractMapping<BigDecimalEntity> {
 
-        public BigDecimalInsert() {
+        public BigDecimalEntityMapping() {
             super("dbo", "UnitTest");
 
             mapDecimal("DecimalValue", 20, 10, BigDecimalEntity::getValue);
@@ -54,9 +55,9 @@ public class DecimalMappingTest extends TransactionalTestBase {
         // Create te
         List<BigDecimalEntity> entities = Arrays.asList(new BigDecimalEntity(bigDecimal));
         // Create the BulkInserter:
-        BigDecimalInsert localDateInsert = new BigDecimalInsert();
+        BigDecimalEntityMapping mapping = new BigDecimalEntityMapping();
         // Now save all entities of a given stream:
-        localDateInsert.saveAll(connection, entities.stream());
+        new SqlServerBulkInsert<>(mapping).saveAll(connection, entities.stream());
         // And assert all have been written to the database:
         ResultSet rs = getAll();
         // We have a Value:

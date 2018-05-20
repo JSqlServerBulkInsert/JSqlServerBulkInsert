@@ -3,6 +3,7 @@
 
 package de.bytefish.jsqlserverbulkinsert.test.integration;
 
+import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
 import de.bytefish.jsqlserverbulkinsert.test.model.Person;
 import de.bytefish.jsqlserverbulkinsert.SqlServerBulkInsert;
 import de.bytefish.jsqlserverbulkinsert.test.base.TransactionalTestBase;
@@ -18,9 +19,9 @@ import java.util.List;
 
 public class IntegrationTest extends TransactionalTestBase {
 
-    private class PersonBulkInserter extends SqlServerBulkInsert<Person> {
+    private class PersonMapping extends AbstractMapping<Person> {
 
-        public PersonBulkInserter() {
+        public PersonMapping() {
             super("dbo", "UnitTest");
 
             mapString("FirstName", Person::getFirstName);
@@ -40,10 +41,12 @@ public class IntegrationTest extends TransactionalTestBase {
         int numEntities = 1000000;
         // Create a large list of Persons:
         List<Person> persons = getPersonList(numEntities);
-        // Create the BulkInserter:
-        PersonBulkInserter personBulkInserter = new PersonBulkInserter();
+        // Create the Mapping:
+        PersonMapping mapping = new PersonMapping();
+        // Create the Bulk Inserter:
+        SqlServerBulkInsert<Person> bulkInsert = new SqlServerBulkInsert<Person>(mapping);
         // Now save all entities of a given stream:
-        personBulkInserter.saveAll(connection, persons.stream());
+        bulkInsert.saveAll(connection, persons.stream());
         // And assert all have been written to the database:
         Assert.assertEquals(numEntities, getRowCount());
     }

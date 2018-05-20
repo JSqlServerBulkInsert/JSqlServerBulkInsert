@@ -28,9 +28,11 @@ public class SqlServerRecord<TEntity> implements ISQLServerBulkRecord {
         if(columnDefinition == null) {
             throw new IllegalArgumentException("columnDefinition");
         }
+
         if(entities == null) {
             throw new IllegalArgumentException("entities");
         }
+
         this.entities = entities;
 
         // Cache the Column Meta Data, so we don't calculate it for each Record:

@@ -4,6 +4,7 @@
 package de.bytefish.jsqlserverbulkinsert.test.mapping;
 
 import de.bytefish.jsqlserverbulkinsert.SqlServerBulkInsert;
+import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
 import de.bytefish.jsqlserverbulkinsert.test.base.TransactionalTestBase;
 import de.bytefish.jsqlserverbulkinsert.test.integration.IntegrationTest;
 import de.bytefish.jsqlserverbulkinsert.test.model.Person;
@@ -33,9 +34,9 @@ public class LocalDateMappingTest extends TransactionalTestBase {
         }
     }
 
-    private class LocalDateInsert extends SqlServerBulkInsert<LocalDateEntity> {
+    private class LocalDateEntityMapping extends AbstractMapping<LocalDateEntity> {
 
-        public LocalDateInsert() {
+        public LocalDateEntityMapping() {
             super("dbo", "UnitTest");
 
             mapDate("LocalDate", LocalDateEntity::getLocalDate);
@@ -55,9 +56,9 @@ public class LocalDateMappingTest extends TransactionalTestBase {
         // Create te
         List<LocalDateEntity> persons = Arrays.asList(new LocalDateEntity(localDate));
         // Create the BulkInserter:
-        LocalDateInsert localDateInsert = new LocalDateInsert();
+        LocalDateEntityMapping mapping = new LocalDateEntityMapping();
         // Now save all entities of a given stream:
-        localDateInsert.saveAll(connection, persons.stream());
+        new SqlServerBulkInsert<>(mapping).saveAll(connection, persons.stream());
         // And assert all have been written to the database:
         ResultSet rs = getAll();
 

@@ -4,6 +4,7 @@
 package de.bytefish.jsqlserverbulkinsert.test.mapping;
 
 import de.bytefish.jsqlserverbulkinsert.SqlServerBulkInsert;
+import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
 import de.bytefish.jsqlserverbulkinsert.test.base.TransactionalTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,9 +24,9 @@ public class SmallIntMappingTest extends TransactionalTestBase {
         }
     }
 
-    private class ShortInsert extends SqlServerBulkInsert<ShortEntity> {
+    private class ShortEntityMapping extends AbstractMapping<ShortEntity> {
 
-        public ShortInsert() {
+        public ShortEntityMapping() {
             super("dbo", "UnitTest");
 
             mapSmallInt("ShortValue", ShortEntity::getValue);
@@ -44,9 +45,9 @@ public class SmallIntMappingTest extends TransactionalTestBase {
         // Create the Value:
         List<ShortEntity> entities = Arrays.asList(new ShortEntity(ShortValue));
         // Create the BulkInserter:
-        ShortInsert localDateInsert = new ShortInsert();
+        ShortEntityMapping mapping = new ShortEntityMapping();
         // Now save all entities of a given stream:
-        localDateInsert.saveAll(connection, entities.stream());
+        new SqlServerBulkInsert<>(mapping).saveAll(connection, entities.stream());
         // And assert all have been written to the database:
         ResultSet rs = getAll();
         // We have a Value:
