@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Types;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.util.ArrayList;
@@ -92,6 +93,10 @@ public abstract class AbstractMapping<TEntity> {
 
     protected void mapDate(String columnName, Func2<TEntity, LocalDate> propertyGetter) {
         addColumn(columnName, Types.DATE, propertyGetter);
+    }
+
+    protected void mapDateTime(String columnName, Func2<TEntity, LocalDateTime> propertyGetter) {
+        addColumn(columnName, Types.TIMESTAMP, propertyGetter);
     }
 
     protected void mapDouble(String columnName, Func2<TEntity, Double> propertyGetter)
