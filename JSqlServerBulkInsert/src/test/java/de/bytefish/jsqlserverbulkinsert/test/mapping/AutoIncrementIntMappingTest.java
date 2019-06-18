@@ -30,8 +30,8 @@ public class AutoIncrementIntMappingTest extends TransactionalTestBase {
         public IntegerEntityMapping() {
             super("dbo", "UnitTest");
 
-            mapInt("PK_ID", x -> null);
-            mapInt("IntegerValue", IntegerEntity::getValue);
+            mapInt("PK_ID", x -> null, false);
+            mapInt("IntegerValue", IntegerEntity::getValue, false);
         }
 
     }

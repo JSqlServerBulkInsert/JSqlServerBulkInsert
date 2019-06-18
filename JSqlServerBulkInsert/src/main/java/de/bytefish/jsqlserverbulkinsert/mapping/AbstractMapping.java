@@ -87,8 +87,8 @@ public abstract class AbstractMapping<TEntity> {
         addColumn(columnName, Types.BIGINT, wrapper);
     }
 
-    protected void mapBigIntLong(String columnName, Func2<TEntity, Long> propertyGetter) {
-        addColumn(columnName, Types.BIGINT, propertyGetter);
+    protected void mapBigIntLong(String columnName, Func2<TEntity, Long> propertyGetter, boolean isAutoIncrement) {
+        addColumn(columnName, Types.BIGINT, isAutoIncrement, propertyGetter);
     }
 
     protected void mapDate(String columnName, Func2<TEntity, LocalDate> propertyGetter) {
@@ -104,14 +104,14 @@ public abstract class AbstractMapping<TEntity> {
         addColumn(columnName, Types.DOUBLE, propertyGetter);
     }
 
-    protected void mapInt(String columnName, Func2<TEntity, Integer> propertyGetter)
+    protected void mapInt(String columnName, Func2<TEntity, Integer> propertyGetter, boolean isAutoIncrement)
     {
-        addColumn(columnName, Types.INTEGER, propertyGetter);
+        addColumn(columnName, Types.INTEGER, isAutoIncrement, propertyGetter);
     }
 
-    protected void mapSmallInt(String columnName, Func2<TEntity, Short> propertyGetter)
+    protected void mapSmallInt(String columnName, Func2<TEntity, Short> propertyGetter, boolean isAutoIncrement)
     {
-        addColumn(columnName, Types.SMALLINT, propertyGetter);
+        addColumn(columnName, Types.SMALLINT, isAutoIncrement, propertyGetter);
     }
 
     protected void mapTinyInt(String columnName, Func2<TEntity, Byte> propertyGetter)
@@ -135,7 +135,7 @@ public abstract class AbstractMapping<TEntity> {
         addColumn(columnName, Types.VARBINARY, maxLength, 0, false, propertyGetter);
     }
 
-    private void addColumn(String name, int type, boolean isAutoIncrement, Func2<TEntity, Object> propertyGetter)
+    private <TProperty> void addColumn(String name, int type, boolean isAutoIncrement, Func2<TEntity, TProperty> propertyGetter)
     {
         // Create the current Column Meta Data:
         ColumnMetaData columnMetaData = new ColumnMetaData(name, type, 0, 0, isAutoIncrement);
