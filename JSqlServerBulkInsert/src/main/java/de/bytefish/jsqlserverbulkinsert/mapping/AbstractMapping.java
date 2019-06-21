@@ -11,11 +11,9 @@ import de.bytefish.jsqlserverbulkinsert.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.sql.Types;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.OffsetTime;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,8 +93,51 @@ public abstract class AbstractMapping<TEntity> {
         addColumn(columnName, Types.DATE, propertyGetter);
     }
 
-    protected void mapDateTime(String columnName, Func2<TEntity, LocalDateTime> propertyGetter) {
+    protected void mapInstant(String columnName, Func2<TEntity, Instant> propertyGetter) {
+        // We need to scale the incoming Instant and cast it to Timestamp so that the scaling sticks, before writing it to SQL Server:
+        final Func2<TEntity, Timestamp> wrapper = entity -> {
+
+            Instant result = propertyGetter.invoke(entity);
+            Timestamp castedResult = new Timestamp(result.toEpochMilli());
+            castedResult.setNanos((result.getNano()/100)*100); // round to 100 nanoseconds (precision that SQL server can handle)
+            return castedResult;
+        };
+        addColumn(columnName, Types.TIMESTAMP, wrapper);
+    }
+
+    protected void mapDateTime(String columnName, Func2<TEntity, Timestamp> propertyGetter) {
         addColumn(columnName, Types.TIMESTAMP, propertyGetter);
+    }
+
+    protected void mapLocalDateTime(String columnName, Func2<TEntity, LocalDateTime> propertyGetter) {
+        // We need to scale the incoming LocalDateTime and cast it to Timestamp so that the scaling sticks, before writing it to SQL Server:
+        final Func2<TEntity, Timestamp> wrapper = entity -> {
+
+            LocalDateTime result = propertyGetter.invoke(entity);
+            long epochSeconds = result.toEpochSecond(OffsetDateTime.now().getOffset());
+            Timestamp castedResult = new Timestamp(epochSeconds * 1000); // convert to milliseconds to create the Timestamp
+            castedResult.setNanos((result.getNano()/100)*100); // round to 100 nanoseconds (precision that SQL server can handle)
+            return castedResult;
+        };
+        addColumn(columnName, Types.TIMESTAMP, wrapper);
+    }
+
+    protected void mapUTCNano(String columnName, Func2<TEntity, Long> propertyGetter) {
+        // We need to scale the incoming LocalDateTime and cast it to Timestamp so that the scaling sticks, before writing it to SQL Server:
+        final Func2<TEntity, Timestamp> wrapper = entity -> {
+            long result = propertyGetter.invoke(entity);
+            long seconds = result / 1000000000; // loses subsecond data
+            int nanoseconds = (int)(result - (seconds * 1000000000));
+            nanoseconds = (nanoseconds/100)*100; // round to 100 nanoseconds (precision that SQL server can handle)
+            LocalDateTime localDateTime = LocalDateTime.ofEpochSecond(seconds,
+                    nanoseconds,
+                    ZoneOffset.UTC);
+            long epochSeconds = localDateTime.toEpochSecond(OffsetDateTime.now().getOffset());
+            Timestamp castedResult = new Timestamp(epochSeconds * 1000); // convert to milliseconds to create the Timestamp
+            castedResult.setNanos(nanoseconds);
+            return castedResult;
+        };
+        addColumn(columnName, Types.TIMESTAMP, wrapper);
     }
 
     protected void mapDouble(String columnName, Func2<TEntity, Double> propertyGetter)
