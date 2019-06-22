@@ -20,13 +20,13 @@ public class UTCNanoTest extends TransactionalTestBase {
 
 	private class TimestampEntity {
 
-		private long localDate;
+		private Long localDate;
 
-		private TimestampEntity(long localDate) {
+		private TimestampEntity(Long localDate) {
 			this.localDate = localDate;
 		}
 
-		public long getLocalDate() {
+		public Long getLocalDate() {
 			return localDate;
 		}
 	}
@@ -71,6 +71,32 @@ public class UTCNanoTest extends TransactionalTestBase {
 			Assert.assertEquals("2017-05-15 12:09:07.1610136", dbDate);
 			Assert.assertEquals("2017-05-15 12:09:07.1610136", timeStampResult.toString());
 			Assert.assertEquals("2017-05-15T12:09:07.161013600", date.toString());
+		}
+	}
+
+	@Test
+	public void bulkInsertNullTest() throws SQLException {
+		// Expected: null
+		Long utcNanos = null;
+		// Create entities
+		List<TimestampEntity> entities = Arrays.asList(new TimestampEntity(utcNanos));
+		// Create the BulkInserter:
+		LocalDateEntityMapping mapping = new LocalDateEntityMapping();
+		// Now save all entities of a given stream:
+		new SqlServerBulkInsert<>(mapping).saveAll(connection, entities.stream());
+
+		// And assert all have been written to the database:
+		ResultSet rs = getAll();
+		while (rs.next()) {
+			// for debugging purposes, can look at how the dates are stored in the DB
+			String dbDate = rs.getString("utcnanocolumn");
+			// Get the Date we have written:
+			Timestamp timeStampResult = rs.getTimestamp("utcnanocolumn");
+			Timestamp date = timeStampResult;
+
+			Assert.assertEquals(null, dbDate);
+			Assert.assertEquals(null, timeStampResult);
+			Assert.assertEquals(null, date);
 		}
 	}
 

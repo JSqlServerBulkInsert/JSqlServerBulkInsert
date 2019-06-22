@@ -121,6 +121,37 @@ public class LocalDateTimeTest extends TransactionalTestBase {
 		}
 	}
 
+	@Test
+	public void bulkInsertNullTest() throws SQLException {
+		// Expected LocalDate (now)
+		LocalDateTime localDate = LocalDateTime.now();
+		// Expected UTCDate: Create a null
+		LocalDateTime utcDate = null;
+		// Create entities
+		List<LocalDateTimeEntity> entities = Arrays.asList(new LocalDateTimeEntity(localDate, utcDate));
+		// Create the BulkInserter:
+		LocalDateEntityMapping mapping = new LocalDateEntityMapping();
+		// Now save all entities of a given stream:
+		new SqlServerBulkInsert<>(mapping).saveAll(connection, entities.stream());
+
+		// And assert all have been written to the database:
+		ResultSet rs = getAll();
+		while (rs.next()) {
+			// for debugging purposes, can look at how the dates are stored in the DB
+			String localds = rs.getString("localtimestampcolumn");
+			String utcds = rs.getString("utctimestampcolumn");
+			// Get the Date we have written:
+			LocalDateTime retreivedLocalDate = rs.getTimestamp("localtimestampcolumn").toLocalDateTime();
+			Timestamp retreivedUTCDate = rs.getTimestamp("utctimestampcolumn");
+
+			// We should have a date:
+			Assert.assertNotNull(retreivedLocalDate);
+
+			Assert.assertEquals(localDate.toString(), retreivedLocalDate.toString());
+			Assert.assertEquals(null, retreivedUTCDate);
+		}
+	}
+
 	private ResultSet getAll() throws SQLException {
 
 		String sqlStatement = "SELECT * FROM dbo.UnitTest";

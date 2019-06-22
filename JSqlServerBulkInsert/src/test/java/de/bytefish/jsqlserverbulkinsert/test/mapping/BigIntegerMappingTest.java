@@ -42,7 +42,7 @@ public class BigIntegerMappingTest extends TransactionalTestBase {
     }
 
     @Test
-    public void bulkInsertPersonDataTest() throws SQLException {
+    public void bulkBigIntDataTest() throws SQLException {
         BigInteger BigIntegerValue = new BigInteger("47878778228484");
         // Create the Value:
         List<BigIntegerEntity> entities = Arrays.asList(new BigIntegerEntity(BigIntegerValue));
@@ -64,6 +64,29 @@ public class BigIntegerMappingTest extends TransactionalTestBase {
         Assert.assertEquals(false, rs.next());
     }
 
+    @Test
+    public void bulkNullDataTest() throws SQLException {
+        BigInteger BigIntegerValue = null;
+        // Create the Value:
+        List<BigIntegerEntity> entities = Arrays.asList(new BigIntegerEntity(BigIntegerValue));
+        // Create the BulkInserter:
+        BigIntegerMapping mapping = new BigIntegerMapping();
+        // Create the Bulk Inserter:
+        SqlServerBulkInsert<BigIntegerEntity> inserter = new SqlServerBulkInsert<>(mapping);
+        // Now save all entities of a given stream:
+        inserter.saveAll(connection, entities.stream());
+        // And assert all have been written to the database:
+        ResultSet rs = getAll();
+        // We have a Value:
+        Assert.assertEquals(true, rs.next());
+        // Get the Date we have written:
+        Long resultBigIntegerValue = rs.getLong("BigIntegerValue");
+        // Assert both are equal:
+        Assert.assertTrue(rs.wasNull());
+        // Assert only one record was read:
+        Assert.assertEquals(false, rs.next());
+    }
+
     private ResultSet getAll() throws SQLException {
 
         String sqlStatement = "SELECT * FROM dbo.UnitTest";
@@ -76,7 +99,7 @@ public class BigIntegerMappingTest extends TransactionalTestBase {
     private void createTestTable() throws SQLException {
         String sqlStatement = "CREATE TABLE [dbo].[UnitTest]\n" +
                 "            (\n" +
-                "                BigIntegerValue bigint\n" +
+                "                BigIntegerValue bigint null\n" +
                 "            );";
 
         Statement statement = connection.createStatement();

@@ -49,10 +49,10 @@ public class DecimalMappingTest extends TransactionalTestBase {
     }
 
     @Test
-    public void bulkInsertPersonDataTest() throws SQLException {
-        // Expected LocalDate 2013/01/01:
+    public void bulkDecimalDataTest() throws SQLException {
+        // Expected decimal 100.123
         BigDecimal bigDecimal = new BigDecimal("100.123");
-        // Create te
+        // Create entities
         List<BigDecimalEntity> entities = Arrays.asList(new BigDecimalEntity(bigDecimal));
         // Create the BulkInserter:
         BigDecimalEntityMapping mapping = new BigDecimalEntityMapping();
@@ -66,6 +66,28 @@ public class DecimalMappingTest extends TransactionalTestBase {
         BigDecimal resultBigDecimal = rs.getBigDecimal("DecimalValue");
         // Assert both are equal:
         Assert.assertEquals(bigDecimal.stripTrailingZeros(), resultBigDecimal.stripTrailingZeros());
+        // Assert only one record was read:
+        Assert.assertEquals(false, rs.next());
+    }
+
+    @Test
+    public void bulkNullDataTest() throws SQLException {
+        // Expected decimal: null
+        BigDecimal bigDecimal = null;
+        // Create entities
+        List<BigDecimalEntity> entities = Arrays.asList(new BigDecimalEntity(bigDecimal));
+        // Create the BulkInserter:
+        BigDecimalEntityMapping mapping = new BigDecimalEntityMapping();
+        // Now save all entities of a given stream:
+        new SqlServerBulkInsert<>(mapping).saveAll(connection, entities.stream());
+        // And assert all have been written to the database:
+        ResultSet rs = getAll();
+        // We have a Value:
+        Assert.assertEquals(true, rs.next());
+        // Get the Date we have written:
+        BigDecimal resultBigDecimal = rs.getBigDecimal("DecimalValue");
+        // Assert both are equal:
+        Assert.assertEquals(null, resultBigDecimal);
         // Assert only one record was read:
         Assert.assertEquals(false, rs.next());
     }

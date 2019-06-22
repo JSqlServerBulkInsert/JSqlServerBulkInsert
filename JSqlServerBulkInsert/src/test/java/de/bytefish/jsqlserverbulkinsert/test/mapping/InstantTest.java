@@ -70,6 +70,29 @@ public class InstantTest extends TransactionalTestBase {
 		}
 	}
 
+	@Test
+	public void bulkInsertNullTest() throws SQLException {
+		// Expected LocalDate null
+		Instant localDate =  null;
+		// Create entities
+		List<TimestampEntity> entities = Arrays.asList(new TimestampEntity(localDate));
+		// Create the BulkInserter:
+		LocalDateEntityMapping mapping = new LocalDateEntityMapping();
+		// Now save all entities of a given stream:
+		new SqlServerBulkInsert<>(mapping).saveAll(connection, entities.stream());
+
+		// And assert all have been written to the database:
+		ResultSet rs = getAll();
+		while (rs.next()) {
+			// for debugging purposes, can look at how the dates are stored in the DB
+			String localds = rs.getString("instantcolumn");
+			// Get the Date we have written:
+			Timestamp date = rs.getTimestamp("instantcolumn");
+
+			Assert.assertEquals(null, date);
+		}
+	}
+
 	private ResultSet getAll() throws SQLException {
 
 		String sqlStatement = "SELECT * FROM dbo.UnitTest";
