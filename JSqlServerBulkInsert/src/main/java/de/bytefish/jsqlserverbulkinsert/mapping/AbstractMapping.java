@@ -16,6 +16,7 @@ import java.sql.Types;
 import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public abstract class AbstractMapping<TEntity> {
 
@@ -43,9 +44,10 @@ public abstract class AbstractMapping<TEntity> {
         // We need to scale the incoming decimal, before writing it to SQL Server:
         final Func2<TEntity, BigDecimal> wrapper = entity -> {
 
-            BigDecimal result = propertyGetter
-                    .invoke(entity)
-                    .setScale(scale, BigDecimal.ROUND_HALF_UP);
+            BigDecimal result = Optional.ofNullable(propertyGetter
+                    .invoke(entity))
+                    .map(d -> d.setScale(scale, BigDecimal.ROUND_HALF_UP))
+                    .orElse(null);
 
             return result;
         };
@@ -58,9 +60,10 @@ public abstract class AbstractMapping<TEntity> {
         // We need to scale the incoming decimal, before writing it to SQL Server:
         final Func2<TEntity, BigDecimal> wrapper = entity -> {
 
-            BigDecimal result = propertyGetter
-                    .invoke(entity)
-                    .setScale(scale, BigDecimal.ROUND_HALF_UP);
+            BigDecimal result = Optional.ofNullable(propertyGetter
+                    .invoke(entity))
+                    .map(d -> d.setScale(scale, BigDecimal.ROUND_HALF_UP))
+                    .orElse(null);
 
             return result;
         };
@@ -77,9 +80,9 @@ public abstract class AbstractMapping<TEntity> {
 
         // SQL Server expects the Big Integer as a Long Value:
         final Func2<TEntity, Long> wrapper = entity -> {
-            BigInteger resultAsBigInteger = propertyGetter.invoke(entity);
+            Optional<BigInteger> resultAsBigIntegerOpt = Optional.ofNullable(propertyGetter.invoke(entity));
 
-            return resultAsBigInteger.longValueExact();
+            return resultAsBigIntegerOpt.map(BigInteger::longValueExact).orElse(null);
         };
 
         addColumn(columnName, Types.BIGINT, wrapper);
@@ -98,6 +101,9 @@ public abstract class AbstractMapping<TEntity> {
         final Func2<TEntity, Timestamp> wrapper = entity -> {
 
             Instant result = propertyGetter.invoke(entity);
+            if (result == null) {
+                return null;
+            }
             Timestamp castedResult = new Timestamp(result.toEpochMilli());
             castedResult.setNanos((result.getNano()/100)*100); // round to 100 nanoseconds (precision that SQL server can handle)
             return castedResult;
@@ -114,6 +120,9 @@ public abstract class AbstractMapping<TEntity> {
         final Func2<TEntity, Timestamp> wrapper = entity -> {
 
             LocalDateTime result = propertyGetter.invoke(entity);
+            if (result == null) {
+                return null;
+            }
             long epochSeconds = result.toEpochSecond(OffsetDateTime.now().getOffset());
             Timestamp castedResult = new Timestamp(epochSeconds * 1000); // convert to milliseconds to create the Timestamp
             castedResult.setNanos((result.getNano()/100)*100); // round to 100 nanoseconds (precision that SQL server can handle)
@@ -125,7 +134,10 @@ public abstract class AbstractMapping<TEntity> {
     protected void mapUTCNano(String columnName, Func2<TEntity, Long> propertyGetter) {
         // We need to scale the incoming LocalDateTime and cast it to Timestamp so that the scaling sticks, before writing it to SQL Server:
         final Func2<TEntity, Timestamp> wrapper = entity -> {
-            long result = propertyGetter.invoke(entity);
+            Long result = propertyGetter.invoke(entity);
+            if (result == null) {
+                return null;
+            }
             long seconds = result / 1000000000; // loses subsecond data
             int nanoseconds = (int)(result - (seconds * 1000000000));
             nanoseconds = (nanoseconds/100)*100; // round to 100 nanoseconds (precision that SQL server can handle)
