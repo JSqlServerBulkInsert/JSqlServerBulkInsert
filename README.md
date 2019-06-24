@@ -1,3 +1,4 @@
+[![Maven Central](https://img.shields.io/maven-central/v/de.bytefish/jsqlserverbulkinsert.svg?label=Maven%20Central)](https://search.maven.org/artifact/de.bytefish/jsqlserverbulkinsert)
 # JSqlServerBulkInsert #
 
 [JSqlServerBulkInsert]: https://github.com/bytefish/JSqlServerBulkInsert
