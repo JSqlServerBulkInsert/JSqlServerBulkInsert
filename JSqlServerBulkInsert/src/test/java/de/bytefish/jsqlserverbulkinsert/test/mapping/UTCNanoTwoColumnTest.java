@@ -11,10 +11,11 @@ import org.junit.Test;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 
-public class UTCNanoTest extends TransactionalTestBase {
+public class UTCNanoTwoColumnTest extends TransactionalTestBase {
 
 	private class TimestampEntity {
 
@@ -24,7 +25,7 @@ public class UTCNanoTest extends TransactionalTestBase {
 			this.utcNano = localDate;
 		}
 
-		public Long getUtcNano() {
+		public Long getUTCNano() {
 			return utcNano;
 		}
 	}
@@ -34,7 +35,7 @@ public class UTCNanoTest extends TransactionalTestBase {
 		public LocalDateEntityMapping() {
 			super("dbo", "UnitTest");
 
-			mapUTCNano("utcnanocolumn", TimestampEntity::getUtcNano);
+			mapUTCNano("datecolumn", "timecolumn", TimestampEntity::getUTCNano);
 		}
 	}
 
@@ -58,17 +59,23 @@ public class UTCNanoTest extends TransactionalTestBase {
 		ResultSet rs = getAll();
 		while (rs.next()) {
 			// for debugging purposes, can look at how the dates are stored in the DB
-			String dbDate = rs.getString("utcnanocolumn");
+			String dbDate = rs.getString("datecolumn");
+			String dbTime = rs.getString("timecolumn");
 			// Get the Date we have written:
-			Timestamp timeStampResult = rs.getTimestamp("utcnanocolumn");
-			LocalDateTime date = timeStampResult.toLocalDateTime();
+			Date dateResult = rs.getDate("datecolumn");
+			Time timeResult = rs.getTime("timecolumn");
+			LocalTime morePreciseTime = LocalTime.parse(dbTime);
+			LocalDateTime dt = LocalDateTime.of(dateResult.toLocalDate(), morePreciseTime);
 
 			// We should have a date:
-			Assert.assertNotNull(date);
+			Assert.assertNotNull(dateResult);
+			Assert.assertNotNull(timeResult);
 
-			Assert.assertEquals("2017-05-15 12:09:07.1610136", dbDate);
-			Assert.assertEquals("2017-05-15 12:09:07.1610136", timeStampResult.toString());
-			Assert.assertEquals("2017-05-15T12:09:07.161013600", date.toString());
+			Assert.assertEquals("2017-05-15", dbDate);
+			Assert.assertEquals("12:09:07.1610136", dbTime);
+			Assert.assertEquals("2017-05-15", dateResult.toString());
+			Assert.assertEquals("12:09:07", timeResult.toString());
+			Assert.assertEquals("2017-05-15T12:09:07.161013600", dt.toString());
 		}
 	}
 
@@ -87,14 +94,16 @@ public class UTCNanoTest extends TransactionalTestBase {
 		ResultSet rs = getAll();
 		while (rs.next()) {
 			// for debugging purposes, can look at how the dates are stored in the DB
-			String dbDate = rs.getString("utcnanocolumn");
+			String dbDate = rs.getString("datecolumn");
+			String dbTime = rs.getString("timecolumn");
 			// Get the Date we have written:
-			Timestamp timeStampResult = rs.getTimestamp("utcnanocolumn");
-			Timestamp date = timeStampResult;
+			Date dateResult = rs.getDate("datecolumn");
+			Time timeResult = rs.getTime("timecolumn");
 
 			Assert.assertEquals(null, dbDate);
-			Assert.assertEquals(null, timeStampResult);
-			Assert.assertEquals(null, date);
+			Assert.assertEquals(null, dbTime);
+			Assert.assertEquals(null, dateResult);
+			Assert.assertEquals(null, timeResult);
 		}
 	}
 
@@ -110,7 +119,8 @@ public class UTCNanoTest extends TransactionalTestBase {
 	private void createTestTable() throws SQLException {
 		String sqlStatement = "CREATE TABLE [dbo].[UnitTest]\n" +
 				"            (\n" +
-				"                utcnanocolumn datetime2\n" +
+				"                datecolumn date,\n" +
+				"                timecolumn time\n" +
 				"            );";
 
 		Statement statement = connection.createStatement();
