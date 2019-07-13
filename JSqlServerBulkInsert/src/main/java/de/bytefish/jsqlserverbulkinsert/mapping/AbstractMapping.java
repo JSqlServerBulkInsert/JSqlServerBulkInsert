@@ -162,61 +162,6 @@ public abstract class AbstractMapping<TEntity> {
         mapProperty(columnName, SqlServerTypes.DateTimeWithTimeZone, propertyGetter, new OffsetDateTimeConverter());
     }
 
-//
-//    protected void mapUTCNano(String dateColumnName, String timeColumnName, Function<TEntity, Long> propertyGetter) {
-//
-//        // We need to scale the incoming LocalDateTime and cast it to Timestamp so that the scaling sticks, before writing it to SQL Server:
-//        final Function<TEntity, Date> dateWrapper = entity -> {
-//            Long result = propertyGetter.apply(entity);
-//
-//            if (result == null) {
-//                return null;
-//            }
-//
-//            AbstractMap.Entry<Long,Integer> convertedDT = convertUTCNanoToEpochSecAndNano(result);
-//
-//            return new Date(convertedDT.getKey()*1000);
-//        };
-//
-//        final Function<TEntity, String> timeWrapper = entity -> {
-//            Long result = propertyGetter.apply(entity);
-//
-//            if (result == null) {
-//                return null;
-//            }
-//
-//            AbstractMap.Entry<Long,Integer> convertedDT = convertUTCNanoToEpochSecAndNano(result);
-//            Time t = new Time(convertedDT.getKey() * 1000);
-//            return t.toString() + "." + convertedDT.getValue()/100; // send as string bc java.sql.Time supports only millisecond precision!?
-//        };
-//
-//        addColumn(dateColumnName, Types.DATE, dateWrapper);
-//        addColumn(timeColumnName, Types.TIME, timeWrapper);
-//    }
-//
-//    protected void mapUTCNano(String columnName, Function<TEntity, Long> propertyGetter) {
-//
-//        // We need to scale the incoming LocalDateTime and cast it to Timestamp so that the scaling sticks, before writing it to SQL Server:
-//        final Function<TEntity, Timestamp> wrapper = entity -> {
-//
-//            Long result = propertyGetter.apply(entity);
-//
-//            if (result == null) {
-//                return null;
-//            }
-//
-//            AbstractMap.Entry<Long,Integer> convertedDT = convertUTCNanoToEpochSecAndNano(result);
-//
-//            Timestamp castedResult = new Timestamp(convertedDT.getKey() * 1000); // convert to milliseconds to create the Timestamp
-//            castedResult.setNanos(convertedDT.getValue());
-//
-//            return castedResult;
-//        };
-//
-//        addColumn(columnName, Types.TIMESTAMP, wrapper);
-//    }
-
-
     // endregion
 
     // region Binary

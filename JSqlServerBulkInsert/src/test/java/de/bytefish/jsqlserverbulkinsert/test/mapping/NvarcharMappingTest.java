@@ -15,7 +15,7 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 
-public class StringMappingTest extends TransactionalTestBase {
+public class NvarcharMappingTest extends TransactionalTestBase {
 
     private class StringEntity {
 
@@ -48,7 +48,7 @@ public class StringMappingTest extends TransactionalTestBase {
     @Test
     public void bulkInsertPersonDataTest() throws SQLException {
         String stringData = "Halli Hallo Hallöchen";
-        // Create te
+        // Create the entity
         List<StringEntity> entities = Arrays.asList(new StringEntity(stringData));
         // Create the BulkInserter:
         StringEntityMapping mapping = new StringEntityMapping();
@@ -58,7 +58,7 @@ public class StringMappingTest extends TransactionalTestBase {
         ResultSet rs = getAll();
         // We have a Value:
         Assert.assertEquals(true, rs.next());
-        // Get the Date we have written:
+        // Get the string we have written:
         String resultString = rs.getString("StringValue");
         // Assert both are equal:
         Assert.assertEquals(stringData, resultString);
