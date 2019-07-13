@@ -1,7 +1,5 @@
 package de.bytefish.jsqlserverbulkinsert.converters;
 
-import java.sql.Types;
-
 public abstract class BaseConverter<TSourceType> implements IConverter<TSourceType> {
 
     public Object convert(TSourceType value) {

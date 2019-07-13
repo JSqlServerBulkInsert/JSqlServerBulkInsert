@@ -1,7 +1,6 @@
 package de.bytefish.jsqlserverbulkinsert.converters;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
 public class BigDecimalConverter extends BaseConverter<BigDecimal> {
 
