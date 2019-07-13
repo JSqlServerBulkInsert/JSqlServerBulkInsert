@@ -29,7 +29,7 @@ public class SmallIntMappingTest extends TransactionalTestBase {
         public ShortEntityMapping() {
             super("dbo", "UnitTest");
 
-            mapSmallInt("ShortValue", ShortEntity::getValue, false);
+            mapSmallInt("ShortValue", ShortEntity::getValue);
         }
 
     }

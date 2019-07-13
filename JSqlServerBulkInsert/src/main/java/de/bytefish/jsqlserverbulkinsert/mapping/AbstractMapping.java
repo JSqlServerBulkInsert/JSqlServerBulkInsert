@@ -1,4 +1,4 @@
-// Copyright (c) Philipp Wagner. All rights reserved.
+// Copyright (c) Philipp Wagner and Victor Lee. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 package de.bytefish.jsqlserverbulkinsert.mapping;
@@ -10,15 +10,11 @@ import de.bytefish.jsqlserverbulkinsert.model.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.Date;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.*;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
@@ -77,9 +73,9 @@ public abstract class AbstractMapping<TEntity> {
         mapProperty(columnName, Types.SMALLINT, propertyGetter, new SmallIntConverter());
     }
 
-    protected void mapSmallInt(String columnName, Function<TEntity, Short> propertyGetter, boolean isAutoIncrement)
+    protected void mapSmallInt(String columnName, boolean isAutoIncrement)
     {
-        mapProperty(columnName, Types.SMALLINT, 0, 0, isAutoIncrement, propertyGetter, new SmallIntConverter());
+        mapProperty(columnName, Types.SMALLINT, 0, 0, isAutoIncrement, (entity) -> null, new SmallIntConverter());
     }
 
     protected void mapInteger(String columnName, Function<TEntity, Integer> propertyGetter)
@@ -87,9 +83,9 @@ public abstract class AbstractMapping<TEntity> {
         mapProperty(columnName, Types.INTEGER, propertyGetter, new IntegerConverter());
     }
 
-    protected void mapInteger(String columnName, Function<TEntity, Integer> propertyGetter, boolean isAutoIncrement)
+    protected void mapInteger(String columnName, boolean isAutoIncrement)
     {
-        mapProperty(columnName, Types.INTEGER, 0, 0, isAutoIncrement, propertyGetter, new IntegerConverter());
+        mapProperty(columnName, Types.INTEGER, 0, 0, isAutoIncrement, (entity) -> null, new IntegerConverter());
     }
 
     protected void mapInteger(String columnName, ToIntFunction<TEntity> propertyGetter)
@@ -97,24 +93,16 @@ public abstract class AbstractMapping<TEntity> {
         mapProperty(columnName, Types.INTEGER, (entity) -> propertyGetter.applyAsInt(entity), new IntegerConverter());
     }
 
-    protected void mapInteger(String columnName, ToIntFunction<TEntity> propertyGetter, boolean isAutoIncrement) {
-        mapProperty(columnName, Types.INTEGER, (entity) -> propertyGetter.applyAsInt(entity), new IntegerConverter());
-    }
-
     protected void mapLong(String columnName, Function<TEntity, Long> propertyGetter) {
         mapProperty(columnName, Types.BIGINT, propertyGetter, new LongConverter());
     }
 
-    protected void mapLong(String columnName, Function<TEntity, Long> propertyGetter, boolean isAutoIncrement) {
-        mapProperty(columnName, Types.BIGINT, 0, 0, isAutoIncrement, propertyGetter, new LongConverter());
+    protected void mapLong(String columnName, boolean isAutoIncrement) {
+        mapProperty(columnName, Types.BIGINT, 0, 0, isAutoIncrement, (entity) -> null, new LongConverter());
     }
 
     protected void mapLong(String columnName, ToLongFunction<TEntity> propertyGetter) {
         mapProperty(columnName, Types.BIGINT,  (entity) -> propertyGetter.applyAsLong(entity), new LongConverter());
-    }
-
-    protected void mapLong(String columnName, ToLongFunction<TEntity> propertyGetter, boolean isAutoIncrement) {
-        mapProperty(columnName, Types.BIGINT,  0, 0, isAutoIncrement, (entity) -> propertyGetter.applyAsLong(entity), new LongConverter());
     }
 
     protected void mapNumeric(String columnName, int precision, int scale, Function<TEntity, BigDecimal> propertyGetter) {

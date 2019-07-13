@@ -31,7 +31,7 @@ public class BigIntegerLongMappingTest extends TransactionalTestBase {
         public BigIntegerMapping() {
             super("dbo", "UnitTest");
 
-            mapLong("BigIntegerValue", BigIntegerEntity::getValue, false);
+            mapLong("BigIntegerValue", BigIntegerEntity::getValue);
         }
 
     }

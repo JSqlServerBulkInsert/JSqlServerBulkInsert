@@ -1,4 +1,4 @@
-// Copyright (c) Philipp Wagner. All rights reserved.
+// Copyright (c) Philipp Wagner and Victor Lee. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 package de.bytefish.jsqlserverbulkinsert.test.mapping;
@@ -30,8 +30,8 @@ public class AutoIncrementIntMappingTest extends TransactionalTestBase {
         public IntegerEntityMapping() {
             super("dbo", "UnitTest");
 
-            mapInteger("PK_ID", x -> null, false);
-            mapInteger("IntegerValue", IntegerEntity::getValue, false);
+            mapInteger("PK_ID", true);
+            mapInteger("IntegerValue", IntegerEntity::getValue);
         }
 
     }

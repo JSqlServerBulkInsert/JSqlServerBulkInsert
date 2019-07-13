@@ -1,7 +1,9 @@
+// Copyright (c) Philipp Wagner and Victor Lee. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 package de.bytefish.jsqlserverbulkinsert.extensions;
 
 import de.bytefish.jsqlserverbulkinsert.converters.BaseConverter;
-import de.bytefish.jsqlserverbulkinsert.converters.IConverter;
 import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
 import de.bytefish.jsqlserverbulkinsert.util.TimestampUtils;
 
