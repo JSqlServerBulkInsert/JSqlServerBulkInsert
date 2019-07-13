@@ -1,7 +1,5 @@
 package de.bytefish.jsqlserverbulkinsert.test.utils;
 
-import de.bytefish.jsqlserverbulkinsert.functional.Action0;
-
 import java.time.Duration;
 import java.time.Instant;
 
