@@ -7,6 +7,7 @@ import com.microsoft.sqlserver.jdbc.ISQLServerBulkRecord;
 import com.microsoft.sqlserver.jdbc.SQLServerException;
 import de.bytefish.jsqlserverbulkinsert.model.ColumnDefinition;
 import de.bytefish.jsqlserverbulkinsert.model.ColumnMetaData;
+import de.bytefish.jsqlserverbulkinsert.model.IColumnDefinition;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
@@ -61,7 +62,7 @@ public class SqlServerRecord<TEntity> implements ISQLServerBulkRecord {
         return null;
     }
 
-    public SqlServerRecord(List<ColumnDefinition<TEntity>> columns, Iterator<TEntity> entities) {
+    public SqlServerRecord(List<IColumnDefinition<TEntity>> columns, Iterator<TEntity> entities) {
 
         if(columns == null) {
             throw new IllegalArgumentException("columnDefinition");
@@ -75,7 +76,7 @@ public class SqlServerRecord<TEntity> implements ISQLServerBulkRecord {
 
         // Cache the Column Meta Data, so we don't calculate it for each Record:
         this.columnMetaData = columns.stream()
-                .map(ColumnDefinition::getColumnMetaData)
+                .map(x -> x.getColumnMetaData())
                 .collect(Collectors.toList());
 
         // Build the Object[] values Builder to populate the records faster:

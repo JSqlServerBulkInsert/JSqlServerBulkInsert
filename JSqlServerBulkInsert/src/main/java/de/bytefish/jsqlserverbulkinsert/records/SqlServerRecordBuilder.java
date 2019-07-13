@@ -5,15 +5,16 @@ package de.bytefish.jsqlserverbulkinsert.records;
 
 import de.bytefish.jsqlserverbulkinsert.model.ColumnDefinition;
 import de.bytefish.jsqlserverbulkinsert.model.ColumnMetaData;
+import de.bytefish.jsqlserverbulkinsert.model.IColumnDefinition;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class SqlServerRecordBuilder<TEntity> {
 
-    private final List<ColumnDefinition<TEntity>> columns;
+    private final List<IColumnDefinition<TEntity>> columns;
 
-    public SqlServerRecordBuilder(List<ColumnDefinition<TEntity>> columns) {
+    public SqlServerRecordBuilder(List<IColumnDefinition<TEntity>> columns) {
         if(columns == null) {
             throw new IllegalArgumentException("columns");
         }
