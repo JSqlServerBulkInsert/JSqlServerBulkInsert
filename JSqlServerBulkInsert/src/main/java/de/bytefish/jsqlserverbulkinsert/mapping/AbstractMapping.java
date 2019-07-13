@@ -41,6 +41,24 @@ public abstract class AbstractMapping<TEntity> {
         addColumn(columnName, Types.BIT, propertyGetter);
     }
 
+    // region Text Functions
+
+    protected void mapChar(String columnName, Func2<TEntity, Character> propertyGetter) {
+        addColumn(columnName, Types.CHAR, propertyGetter);
+    }
+
+    protected void mapVarchar(String columnName, Func2<TEntity, String> propertyGetter) {
+        addColumn(columnName, Types.VARCHAR, propertyGetter);
+    }
+
+    protected void mapNvarchar(String columnName, Func2<TEntity, String> propertyGetter) {
+        addColumn(columnName, Types.NVARCHAR, propertyGetter);
+    }
+
+    // endregion
+
+    // region Numeric Functions
+
     protected void mapNumeric(String columnName, int precision, int scale, Func2<TEntity, BigDecimal> propertyGetter) {
 
         // We need to scale the incoming decimal, before writing it to SQL Server:
@@ -53,6 +71,7 @@ public abstract class AbstractMapping<TEntity> {
 
             return result;
         };
+
 
         addColumn(columnName, Types.NUMERIC, precision, scale, false, wrapper);
     }
@@ -94,6 +113,30 @@ public abstract class AbstractMapping<TEntity> {
         addColumn(columnName, Types.BIGINT, isAutoIncrement, propertyGetter);
     }
 
+    protected void mapDouble(String columnName, Func2<TEntity, Double> propertyGetter)
+    {
+        addColumn(columnName, Types.DOUBLE, propertyGetter);
+    }
+
+    protected void mapInt(String columnName, Func2<TEntity, Integer> propertyGetter, boolean isAutoIncrement)
+    {
+        addColumn(columnName, Types.INTEGER, isAutoIncrement, propertyGetter);
+    }
+
+    protected void mapSmallInt(String columnName, Func2<TEntity, Short> propertyGetter, boolean isAutoIncrement)
+    {
+        addColumn(columnName, Types.SMALLINT, isAutoIncrement, propertyGetter);
+    }
+
+    protected void mapTinyInt(String columnName, Func2<TEntity, Byte> propertyGetter)
+    {
+        addColumn(columnName, Types.TINYINT, propertyGetter);
+    }
+
+    // endregion
+
+    // region Time Functions
+
     protected void mapDate(String columnName, Func2<TEntity, LocalDate> propertyGetter) {
         addColumn(columnName, Types.DATE, propertyGetter);
     }
@@ -134,6 +177,7 @@ public abstract class AbstractMapping<TEntity> {
     }
 
     protected void mapUTCNano(String dateColumnName, String timeColumnName, Func2<TEntity, Long> propertyGetter) {
+
         // We need to scale the incoming LocalDateTime and cast it to Timestamp so that the scaling sticks, before writing it to SQL Server:
         final Func2<TEntity, Date> dateWrapper = entity -> {
             Long result = propertyGetter.invoke(entity);
@@ -143,6 +187,7 @@ public abstract class AbstractMapping<TEntity> {
             AbstractMap.Entry<Long,Integer> convertedDT = convertUTCNanoToEpochSecAndNano(result);
             return new Date(convertedDT.getKey()*1000);
         };
+
         final Func2<TEntity, String> timeWrapper = entity -> {
             Long result = propertyGetter.invoke(entity);
             if (result == null) {
@@ -182,26 +227,6 @@ public abstract class AbstractMapping<TEntity> {
         return new AbstractMap.SimpleEntry<>(epochSeconds, nanoseconds);
     }
 
-    protected void mapDouble(String columnName, Func2<TEntity, Double> propertyGetter)
-    {
-        addColumn(columnName, Types.DOUBLE, propertyGetter);
-    }
-
-    protected void mapInt(String columnName, Func2<TEntity, Integer> propertyGetter, boolean isAutoIncrement)
-    {
-        addColumn(columnName, Types.INTEGER, isAutoIncrement, propertyGetter);
-    }
-
-    protected void mapSmallInt(String columnName, Func2<TEntity, Short> propertyGetter, boolean isAutoIncrement)
-    {
-        addColumn(columnName, Types.SMALLINT, isAutoIncrement, propertyGetter);
-    }
-
-    protected void mapTinyInt(String columnName, Func2<TEntity, Byte> propertyGetter)
-    {
-        addColumn(columnName, Types.TINYINT, propertyGetter);
-    }
-
     protected void mapTimeWithTimeZone(String columnName, Func2<TEntity, OffsetTime> propertyGetter) {
         addColumn(columnName, 2013, propertyGetter);
     }
@@ -210,9 +235,8 @@ public abstract class AbstractMapping<TEntity> {
         addColumn(columnName, 2014, propertyGetter);
     }
 
-    protected void mapString(String columnName, Func2<TEntity, String> propertyGetter) {
-        addColumn(columnName, Types.NVARCHAR, propertyGetter);
-    }
+    // endregion
+
 
     protected void mapVarBinary(String columnName, int maxLength, Func2<TEntity, byte[]> propertyGetter) {
         addColumn(columnName, Types.VARBINARY, maxLength, 0, false, propertyGetter);
@@ -220,10 +244,8 @@ public abstract class AbstractMapping<TEntity> {
 
     private <TProperty> void addColumn(String name, int type, boolean isAutoIncrement, Func2<TEntity, TProperty> propertyGetter)
     {
-        // Create the current Column Meta Data:
         ColumnMetaData columnMetaData = new ColumnMetaData(name, type, 0, 0, isAutoIncrement);
 
-        // Add a new Column with the Meta Data and Property Getter:
         addColumn(columnMetaData, propertyGetter);
     }
 
@@ -242,7 +264,6 @@ public abstract class AbstractMapping<TEntity> {
         ColumnMetaData columnMetaData = new ColumnMetaData(name, type, precision, scale, isAutoIncrement);
 
         // Add a new Column with the Meta Data and Property Getter:
-
         addColumn(columnMetaData, propertyGetter);
     }
 

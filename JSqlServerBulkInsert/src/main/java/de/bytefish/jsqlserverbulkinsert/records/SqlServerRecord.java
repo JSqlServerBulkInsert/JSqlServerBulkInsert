@@ -8,6 +8,7 @@ import com.microsoft.sqlserver.jdbc.SQLServerException;
 import de.bytefish.jsqlserverbulkinsert.model.ColumnDefinition;
 import de.bytefish.jsqlserverbulkinsert.model.ColumnMetaData;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +24,42 @@ public class SqlServerRecord<TEntity> implements ISQLServerBulkRecord {
     private final List<ColumnMetaData> columnMetaData;
 
     private final SqlServerRecordBuilder<TEntity> builder;
+
+    @Override
+    public void addColumnMetadata(int positionInSource, String name, int jdbcType, int precision, int scale, DateTimeFormatter dateTimeFormatter) throws SQLServerException {
+        // We can safely ignore ...
+    }
+
+    @Override
+    public void addColumnMetadata(int positionInSource, String name, int jdbcType, int precision, int scale) throws SQLServerException {
+        // We can safely ignore ...
+    }
+
+    @Override
+    public void setTimestampWithTimezoneFormat(String s) {
+        // We can safely ignore ...
+    }
+
+    @Override
+    public void setTimestampWithTimezoneFormat(DateTimeFormatter dateTimeFormatter) {
+        // We can safely ignore ...
+    }
+
+    @Override
+    public void setTimeWithTimezoneFormat(String s) {
+        // We can safely ignore ...
+    }
+
+    @Override
+    public void setTimeWithTimezoneFormat(DateTimeFormatter dateTimeFormatter) {
+        // We can safely ignore ...
+    }
+
+    @Override
+    public DateTimeFormatter getColumnDateTimeFormatter(int i) {
+        // We don't need to implement it ...
+        return null;
+    }
 
     public SqlServerRecord(List<ColumnDefinition<TEntity>> columns, Iterator<TEntity> entities) {
 
