@@ -4,12 +4,13 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 public class LocalDateTimeConverter extends BaseConverter<LocalDateTime> {
+    static ZoneOffset zoneOffset =  OffsetDateTime.now().getOffset();
     @Override
     public Object internalConvert(LocalDateTime value) {
-
-        long epochSeconds = value.toEpochSecond(OffsetDateTime.now().getOffset());
+        long epochSeconds = value.toEpochSecond(zoneOffset);
 
         // Convert to milliseconds to create the Timestamp:
         Timestamp castedResult = new Timestamp(epochSeconds * 1000);

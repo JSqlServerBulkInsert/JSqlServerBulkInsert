@@ -7,11 +7,6 @@ public class InstantConverter extends BaseConverter<Instant> {
 
     @Override
     public Object internalConvert(Instant value) {
-
-        if (value == null) {
-            return null;
-        }
-
         Timestamp castedResult = new Timestamp(value.toEpochMilli());
 
         // Round to the nearest 100 nanoseconds, the precision that SQL server can handle:
