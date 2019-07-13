@@ -6,7 +6,8 @@ import java.time.ZoneOffset;
 import java.util.AbstractMap;
 
 public class TimestampUtils {
-    public AbstractMap.SimpleImmutableEntry<Long, Integer> convertUtcNanoToEpochSecAndNano(long value) {
+
+    public static AbstractMap.SimpleImmutableEntry<Long, Integer> convertUtcNanoToEpochSecAndNano(long value) {
         // loses subsecond data:
         long seconds = value / 1000000000;
         int nanoseconds = (int) (value - (seconds * 1000000000));

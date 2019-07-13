@@ -4,10 +4,9 @@
 package de.bytefish.jsqlserverbulkinsert.mapping;
 
 import de.bytefish.jsqlserverbulkinsert.converters.*;
-import de.bytefish.jsqlserverbulkinsert.model.ColumnDefinition;
-import de.bytefish.jsqlserverbulkinsert.model.ColumnMetaData;
-import de.bytefish.jsqlserverbulkinsert.model.IColumnDefinition;
-import de.bytefish.jsqlserverbulkinsert.model.TableDefinition;
+import de.bytefish.jsqlserverbulkinsert.functional.ToBooleanFunction;
+import de.bytefish.jsqlserverbulkinsert.functional.ToFloatFunction;
+import de.bytefish.jsqlserverbulkinsert.model.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -21,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
 
@@ -45,9 +45,9 @@ public abstract class AbstractMapping<TEntity> {
         mapProperty(columnName, Types.BIT, propertyGetter, new BooleanConverter());
     }
 
-//    protected void mapBoolean(String columnName, ToIntFunction<TEntity> propertyGetter) {
-//        mapProperty(columnName, Types.BIT, (entity) -> (byte) propertyGetter.applyAsInt(entity), );
-//    }
+    protected void mapBoolean(String columnName, ToBooleanFunction<TEntity> propertyGetter) {
+        mapProperty(columnName, Types.BIT, (entity) -> propertyGetter.applyAsBoolean(entity), new BooleanConverter());
+    }
 
     // region Text Functions
 
@@ -92,10 +92,14 @@ public abstract class AbstractMapping<TEntity> {
         mapProperty(columnName, Types.INTEGER, 0, 0, isAutoIncrement, propertyGetter, new IntegerConverter());
     }
 
-//    protected void mapInteger(String columnName, ToIntFunction<TEntity> propertyGetter, boolean isAutoIncrement)
-//    {
-//        addColumn(columnName, Types.INTEGER, isAutoIncrement, (entity) -> propertyGetter.applyAsInt(entity));
-//    }
+    protected void mapInteger(String columnName, ToIntFunction<TEntity> propertyGetter)
+    {
+        mapProperty(columnName, Types.INTEGER, (entity) -> propertyGetter.applyAsInt(entity), new IntegerConverter());
+    }
+
+    protected void mapInteger(String columnName, ToIntFunction<TEntity> propertyGetter, boolean isAutoIncrement) {
+        mapProperty(columnName, Types.INTEGER, (entity) -> propertyGetter.applyAsInt(entity), new IntegerConverter());
+    }
 
     protected void mapLong(String columnName, Function<TEntity, Long> propertyGetter) {
         mapProperty(columnName, Types.BIGINT, propertyGetter, new LongConverter());
@@ -105,32 +109,40 @@ public abstract class AbstractMapping<TEntity> {
         mapProperty(columnName, Types.BIGINT, 0, 0, isAutoIncrement, propertyGetter, new LongConverter());
     }
 
-//    protected void mapLong(String columnName, ToLongFunction<TEntity> propertyGetter, boolean isAutoIncrement) {
-//        addColumn(columnName, Types.BIGINT, isAutoIncrement, (entity) -> propertyGetter.applyAsLong(entity));
-//    }
+    protected void mapLong(String columnName, ToLongFunction<TEntity> propertyGetter) {
+        mapProperty(columnName, Types.BIGINT,  (entity) -> propertyGetter.applyAsLong(entity), new LongConverter());
+    }
+
+    protected void mapLong(String columnName, ToLongFunction<TEntity> propertyGetter, boolean isAutoIncrement) {
+        mapProperty(columnName, Types.BIGINT,  0, 0, isAutoIncrement, (entity) -> propertyGetter.applyAsLong(entity), new LongConverter());
+    }
 
     protected void mapNumeric(String columnName, int precision, int scale, Function<TEntity, BigDecimal> propertyGetter) {
         mapProperty(columnName, Types.NUMERIC, precision, scale, false, propertyGetter, new BigDecimalConverter(scale));
     }
 
-    protected void mapDecimal(String columnName, int precision, int scale, Function<TEntity, BigDecimal> propertyGetter)
-    {
+    protected void mapDecimal(String columnName, int precision, int scale, Function<TEntity, BigDecimal> propertyGetter) {
         mapProperty(columnName, Types.DECIMAL, precision, scale, false, propertyGetter, new BigDecimalConverter(scale));
     }
 
-    protected void mapReal(String columnName, Function<TEntity, Float> propertyGetter)
-    {
+    protected void mapReal(String columnName, Function<TEntity, Float> propertyGetter) {
         mapProperty(columnName, Types.REAL, propertyGetter, new FloatConverter());
     }
 
-    protected void mapBigInt(String columnName, Function<TEntity, BigInteger> propertyGetter) {
+    protected void mapReal(String columnName, ToFloatFunction<TEntity> propertyGetter) {
+        mapProperty(columnName, Types.REAL, (entity) -> propertyGetter.applyAsFloat(entity), new FloatConverter());
+    }
 
+    protected void mapBigInt(String columnName, Function<TEntity, BigInteger> propertyGetter) {
         mapProperty(columnName, Types.BIGINT, propertyGetter, new BigIntegerConverter());
     }
 
-    protected void mapDouble(String columnName, Function<TEntity, Double> propertyGetter)
-    {
+    protected void mapDouble(String columnName, Function<TEntity, Double> propertyGetter) {
         mapProperty(columnName, Types.DOUBLE, propertyGetter, new DoubleConverter());
+    }
+
+    protected void mapDouble(String columnName, ToDoubleFunction<TEntity> propertyGetter) {
+        mapProperty(columnName, Types.DOUBLE, (entity) -> propertyGetter.applyAsDouble(entity), new DoubleConverter());
     }
 
     // endregion
@@ -153,6 +165,15 @@ public abstract class AbstractMapping<TEntity> {
     protected void mapLocalDateTime(String columnName, Function<TEntity, LocalDateTime> propertyGetter) {
         mapProperty(columnName, Types.TIMESTAMP, propertyGetter, new LocalDateTimeConverter());
     }
+
+    protected void mapTimeWithTimeZone(String columnName, Function<TEntity, OffsetTime> propertyGetter) {
+        mapProperty(columnName, SqlServerTypes.TimeWithTimeZone, propertyGetter, new OffsetTimeConverter());
+    }
+
+    protected void mapDateTimeWithTimeZone(String columnName, Function<TEntity, OffsetDateTime> propertyGetter) {
+        mapProperty(columnName, SqlServerTypes.DateTimeWithTimeZone, propertyGetter, new OffsetDateTimeConverter());
+    }
+
 //
 //    protected void mapUTCNano(String dateColumnName, String timeColumnName, Function<TEntity, Long> propertyGetter) {
 //
@@ -208,14 +229,6 @@ public abstract class AbstractMapping<TEntity> {
 //    }
 
 
-    protected void mapTimeWithTimeZone(String columnName, Function<TEntity, OffsetTime> propertyGetter) {
-        mapProperty(columnName, 2013, propertyGetter, new OffsetTimeConverter());
-    }
-
-    protected void mapDateTimeWithTimeZone(String columnName, Function<TEntity, OffsetDateTime> propertyGetter) {
-        mapProperty(columnName, 2014, propertyGetter, new OffsetDateTimeConverter());
-    }
-
     // endregion
 
     // region Binary
@@ -226,7 +239,7 @@ public abstract class AbstractMapping<TEntity> {
 
     // endregion
 
-    protected <TProperty> void mapProperty(String name, int type, Function<TEntity, TProperty> propertyGetter, IConverter<TProperty> converter)
+    public <TProperty> void mapProperty(String name, int type, Function<TEntity, TProperty> propertyGetter, IConverter<TProperty> converter)
     {
         // Create the current Column Meta Data:
         ColumnMetaData columnMetaData = new ColumnMetaData(name, type);
@@ -235,7 +248,7 @@ public abstract class AbstractMapping<TEntity> {
         addColumn(columnMetaData, propertyGetter, converter);
     }
 
-    protected <TProperty> void mapProperty(String name, int type, int precision, int scale, boolean isAutoIncrement, Function<TEntity, TProperty> propertyGetter, IConverter<TProperty> converter)
+    public <TProperty> void mapProperty(String name, int type, int precision, int scale, boolean isAutoIncrement, Function<TEntity, TProperty> propertyGetter, IConverter<TProperty> converter)
     {
         // Create the current Column Meta Data:
         ColumnMetaData columnMetaData = new ColumnMetaData(name, type, precision, scale, isAutoIncrement);
@@ -244,7 +257,7 @@ public abstract class AbstractMapping<TEntity> {
         addColumn(columnMetaData, propertyGetter, converter);
     }
 
-    private <TProperty> void addColumn(ColumnMetaData columnMetaData, Function<TEntity, TProperty> propertyGetter, IConverter<TProperty> converter)
+    public <TProperty> void addColumn(ColumnMetaData columnMetaData, Function<TEntity, TProperty> propertyGetter, IConverter<TProperty> converter)
     {
         // Add a new Column with the Meta Data and Property Getter:
         ColumnDefinition<TEntity, TProperty> columnDefinition = new ColumnDefinition<>(columnMetaData, propertyGetter, converter);
