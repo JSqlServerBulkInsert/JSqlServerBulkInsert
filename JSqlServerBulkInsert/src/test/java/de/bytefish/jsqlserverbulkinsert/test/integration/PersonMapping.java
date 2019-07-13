@@ -11,8 +11,8 @@ public class PersonMapping extends AbstractMapping<Person> {
     public PersonMapping() {
         super("dbo", "UnitTest");
 
-        mapString("FirstName", Person::getFirstName);
-        mapString("LastName", Person::getLastName);
+        mapNvarchar("FirstName", Person::getFirstName);
+        mapNvarchar("LastName", Person::getLastName);
         mapDate("BirthDate", Person::getBirthDate);
     }
 }

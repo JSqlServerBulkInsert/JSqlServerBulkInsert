@@ -35,7 +35,7 @@ public class StringMappingTest extends TransactionalTestBase {
         public StringEntityMapping() {
             super("dbo", "UnitTest");
 
-            mapString("StringValue", StringEntity::getValue);
+            mapNvarchar("StringValue", StringEntity::getValue);
         }
 
     }
