@@ -39,41 +39,41 @@ public abstract class AbstractMapping<TEntity> {
     }
 
     protected void mapBoolean(String columnName, Function<TEntity, Boolean> propertyGetter) {
-        mapProperty(columnName, Types.BIT, propertyGetter, new BooleanConverter());
+        mapProperty(columnName, Types.BIT, propertyGetter, new IdentityConverter<>());
     }
 
     protected void mapBoolean(String columnName, ToBooleanFunction<TEntity> propertyGetter) {
-        mapProperty(columnName, Types.BIT, (entity) -> propertyGetter.applyAsBoolean(entity), new BooleanConverter());
+        mapProperty(columnName, Types.BIT, (entity) -> propertyGetter.applyAsBoolean(entity), new IdentityConverter());
     }
 
     // region Text Functions
 
     protected void mapChar(String columnName, Function<TEntity, Character> propertyGetter) {
-        mapProperty(columnName, Types.CHAR, propertyGetter, new TextConverter());
+        mapProperty(columnName, Types.CHAR, propertyGetter, new IdentityConverter());
     }
 
     protected void mapNchar(String columnName, Function<TEntity, Character> propertyGetter) {
-        mapProperty(columnName, Types.NCHAR, propertyGetter, new TextConverter());
+        mapProperty(columnName, Types.NCHAR, propertyGetter, new IdentityConverter());
     }
 
     protected void mapClob(String columnName, Function<TEntity, Character> propertyGetter) {
-        mapProperty(columnName, Types.CLOB, propertyGetter, new TextConverter());
+        mapProperty(columnName, Types.CLOB, propertyGetter, new IdentityConverter());
     }
 
     protected void mapVarchar(String columnName, Function<TEntity, String> propertyGetter) {
-        mapProperty(columnName, Types.VARCHAR, propertyGetter, new VarcharConverter());
+        mapProperty(columnName, Types.VARCHAR, propertyGetter, new IdentityConverter());
     }
 
     protected void mapLongVarchar(String columnName, Function<TEntity, Character> propertyGetter) {
-        mapProperty(columnName, Types.LONGVARCHAR, propertyGetter, new TextConverter());
+        mapProperty(columnName, Types.LONGVARCHAR, propertyGetter, new IdentityConverter());
     }
 
     protected void mapNvarchar(String columnName, Function<TEntity, String> propertyGetter) {
-        mapProperty(columnName, Types.NVARCHAR, propertyGetter, new NVarcharConverter());
+        mapProperty(columnName, Types.NVARCHAR, propertyGetter, new IdentityConverter());
     }
 
     protected void mapLongNvarchar(String columnName, Function<TEntity, Character> propertyGetter) {
-        mapProperty(columnName, Types.LONGNVARCHAR, propertyGetter, new TextConverter());
+        mapProperty(columnName, Types.LONGNVARCHAR, propertyGetter, new IdentityConverter());
     }
 
 
@@ -91,44 +91,44 @@ public abstract class AbstractMapping<TEntity> {
 
     protected void mapTinyInt(String columnName, Function<TEntity, Byte> propertyGetter)
     {
-        mapProperty(columnName, Types.TINYINT, propertyGetter, new TinyIntConverter());
+        mapProperty(columnName, Types.TINYINT, propertyGetter, new IdentityConverter());
     }
 
     protected void mapSmallInt(String columnName, Function<TEntity, Short> propertyGetter)
     {
-        mapProperty(columnName, Types.SMALLINT, propertyGetter, new SmallIntConverter());
+        mapProperty(columnName, Types.SMALLINT, propertyGetter, new IdentityConverter());
     }
 
     protected void mapSmallInt(String columnName, boolean isAutoIncrement)
     {
-        mapProperty(columnName, Types.SMALLINT, 0, 0, isAutoIncrement, (entity) -> null, new SmallIntConverter());
+        mapProperty(columnName, Types.SMALLINT, 0, 0, isAutoIncrement, (entity) -> null, new IdentityConverter());
     }
 
     protected void mapInteger(String columnName, Function<TEntity, Integer> propertyGetter)
     {
-        mapProperty(columnName, Types.INTEGER, propertyGetter, new IntegerConverter());
+        mapProperty(columnName, Types.INTEGER, propertyGetter, new IdentityConverter());
     }
 
     protected void mapInteger(String columnName, boolean isAutoIncrement)
     {
-        mapProperty(columnName, Types.INTEGER, 0, 0, isAutoIncrement, (entity) -> null, new IntegerConverter());
+        mapProperty(columnName, Types.INTEGER, 0, 0, isAutoIncrement, (entity) -> null, new IdentityConverter());
     }
 
     protected void mapInteger(String columnName, ToIntFunction<TEntity> propertyGetter)
     {
-        mapProperty(columnName, Types.INTEGER, (entity) -> propertyGetter.applyAsInt(entity), new IntegerConverter());
+        mapProperty(columnName, Types.INTEGER, (entity) -> propertyGetter.applyAsInt(entity), new IdentityConverter());
     }
 
     protected void mapLong(String columnName, Function<TEntity, Long> propertyGetter) {
-        mapProperty(columnName, Types.BIGINT, propertyGetter, new LongConverter());
+        mapProperty(columnName, Types.BIGINT, propertyGetter, new IdentityConverter());
     }
 
     protected void mapLong(String columnName, boolean isAutoIncrement) {
-        mapProperty(columnName, Types.BIGINT, 0, 0, isAutoIncrement, (entity) -> null, new LongConverter());
+        mapProperty(columnName, Types.BIGINT, 0, 0, isAutoIncrement, (entity) -> null, new IdentityConverter());
     }
 
     protected void mapLong(String columnName, ToLongFunction<TEntity> propertyGetter) {
-        mapProperty(columnName, Types.BIGINT,  (entity) -> propertyGetter.applyAsLong(entity), new LongConverter());
+        mapProperty(columnName, Types.BIGINT,  (entity) -> propertyGetter.applyAsLong(entity), new IdentityConverter());
     }
 
     protected void mapNumeric(String columnName, int precision, int scale, Function<TEntity, BigDecimal> propertyGetter) {
@@ -143,11 +143,11 @@ public abstract class AbstractMapping<TEntity> {
     }
 
     protected void mapReal(String columnName, Function<TEntity, Float> propertyGetter) {
-        mapProperty(columnName, Types.REAL, propertyGetter, new FloatConverter());
+        mapProperty(columnName, Types.REAL, propertyGetter, new IdentityConverter());
     }
 
     protected void mapReal(String columnName, ToFloatFunction<TEntity> propertyGetter) {
-        mapProperty(columnName, Types.REAL, (entity) -> propertyGetter.applyAsFloat(entity), new FloatConverter());
+        mapProperty(columnName, Types.REAL, (entity) -> propertyGetter.applyAsFloat(entity), new IdentityConverter());
     }
 
     protected void mapBigInt(String columnName, Function<TEntity, BigInteger> propertyGetter) {
@@ -155,11 +155,11 @@ public abstract class AbstractMapping<TEntity> {
     }
 
     protected void mapDouble(String columnName, Function<TEntity, Double> propertyGetter) {
-        mapProperty(columnName, Types.DOUBLE, propertyGetter, new DoubleConverter());
+        mapProperty(columnName, Types.DOUBLE, propertyGetter, new IdentityConverter());
     }
 
     protected void mapDouble(String columnName, ToDoubleFunction<TEntity> propertyGetter) {
-        mapProperty(columnName, Types.DOUBLE, (entity) -> propertyGetter.applyAsDouble(entity), new DoubleConverter());
+        mapProperty(columnName, Types.DOUBLE, (entity) -> propertyGetter.applyAsDouble(entity), new IdentityConverter());
     }
 
     // endregion
@@ -167,7 +167,7 @@ public abstract class AbstractMapping<TEntity> {
     // region Time Functions
 
     protected void mapDate(String columnName, Function<TEntity, LocalDate> propertyGetter) {
-        mapProperty(columnName, Types.DATE, propertyGetter, new LocalDateConverter());
+        mapProperty(columnName, Types.DATE, propertyGetter, new IdentityConverter());
     }
 
     protected void mapInstant(String columnName, Function<TEntity, Instant> propertyGetter) {
@@ -176,7 +176,7 @@ public abstract class AbstractMapping<TEntity> {
     }
 
     protected void mapDateTime(String columnName, Function<TEntity, Timestamp> propertyGetter) {
-        mapProperty(columnName, Types.TIMESTAMP, propertyGetter, new TimestampConverter());
+        mapProperty(columnName, Types.TIMESTAMP, propertyGetter, new IdentityConverter());
     }
 
     protected void mapLocalDateTime(String columnName, Function<TEntity, LocalDateTime> propertyGetter) {
@@ -184,11 +184,11 @@ public abstract class AbstractMapping<TEntity> {
     }
 
     protected void mapTimeWithTimeZone(String columnName, Function<TEntity, OffsetTime> propertyGetter) {
-        mapProperty(columnName, SqlServerTypes.TimeWithTimeZone, propertyGetter, new OffsetTimeConverter());
+        mapProperty(columnName, SqlServerTypes.TimeWithTimeZone, propertyGetter, new IdentityConverter());
     }
 
     protected void mapDateTimeWithTimeZone(String columnName, Function<TEntity, OffsetDateTime> propertyGetter) {
-        mapProperty(columnName, SqlServerTypes.DateTimeWithTimeZone, propertyGetter, new OffsetDateTimeConverter());
+        mapProperty(columnName, SqlServerTypes.DateTimeWithTimeZone, propertyGetter, new IdentityConverter());
     }
 
     // endregion
@@ -196,7 +196,7 @@ public abstract class AbstractMapping<TEntity> {
     // region Binary
 
     protected void mapVarBinary(String columnName, int maxLength, Function<TEntity, byte[]> propertyGetter) {
-        mapProperty(columnName, Types.VARBINARY, maxLength, 0, false, propertyGetter, new VarbinaryConverter());
+        mapProperty(columnName, Types.VARBINARY, maxLength, 0, false, propertyGetter, new IdentityConverter());
     }
 
     // endregion
