@@ -27,7 +27,7 @@ Please read up the Microsoft Documentation for understanding the mapping between
 
 The following JDBC Types are supported by the library:
 
-* [Numeric Types](http://www.postgresql.org/docs/current/static/datatype-numeric.html)
+* Numeric Types
     * TINYINT
     * SMALLINT
     * INTEGER
