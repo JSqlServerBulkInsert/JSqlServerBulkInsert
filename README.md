@@ -69,9 +69,6 @@ Bulk Inserting ``1,000,000``entities to a SQL Server 2016 database took ``5`` Se
 The domain model could be the ``Person`` class with a First Name, Last Name and a birth date. 
 
 ```java
-// Copyright (c) Philipp Wagner and Victor Lee. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
 package de.bytefish.jsqlserverbulkinsert.test.model;
 
 import java.time.LocalDate;
@@ -119,9 +116,6 @@ To bulk insert the ``Person`` data to a SQL Server database it is important to k
 between the Java Object and the Database Columns:
 
 ```java
-// Copyright (c) Philipp Wagner and Victor Lee. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
 package de.bytefish.jsqlserverbulkinsert.test.integration;
 
 import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
@@ -154,9 +148,6 @@ bulkInsert.saveAll(connection, persons.stream());
 And the full Integration Test:
 
 ```java
-// Copyright (c) Philipp Wagner and Victor Lee. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
 package de.bytefish.jsqlserverbulkinsert.test.integration;
 
 import de.bytefish.jsqlserverbulkinsert.SqlServerBulkInsert;
