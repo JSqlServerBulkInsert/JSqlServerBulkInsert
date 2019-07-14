@@ -17,6 +17,11 @@ categories:
       - 'test'
       - 'tests'
       - 'testing'
+  - title: '📃 Documentation'
+    labels: 
+      - 'doc'
+      - 'docs'
+      - 'documentation'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 template: |
   ## Changes
