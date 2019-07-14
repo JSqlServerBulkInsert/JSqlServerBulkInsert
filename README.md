@@ -23,7 +23,7 @@ You can obtain [JSqlServerBulkInsert] from Maven by adding the following:
 
 Please read up the Microsoft Documentation for understanding the mapping between SQL Server Types and JDBC Data Types:
 
-* (Understanding the JDBC Driver Data Types)[https://docs.microsoft.com/en-us/sql/connect/jdbc/understanding-the-jdbc-driver-data-types]
+* [Understanding the JDBC Driver Data Types](https://docs.microsoft.com/en-us/sql/connect/jdbc/understanding-the-jdbc-driver-data-types)
 
 The following JDBC Types are supported by the library:
 
