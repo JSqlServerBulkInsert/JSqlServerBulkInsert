@@ -7,8 +7,11 @@ package de.bytefish.jsqlserverbulkinsert.test.base;
 import org.junit.After;
 import org.junit.Before;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.Properties;
 
 public abstract class TransactionalTestBase {
 
@@ -16,8 +19,13 @@ public abstract class TransactionalTestBase {
 
     @Before
     public void setUp() throws Exception {
-        //connection = DriverManager.getConnection("jdbc:sqlserver://localhost:1433;databaseName=TestDatabase", "philipp", "test_pwd");
-        connection = DriverManager.getConnection("jdbc:sqlserver://localhost;instanceName=MSSQLSERVER2017;databaseName=TestDatabase;", "philipp", "test_pwd");
+        Properties properties = getConfigProperties();
+
+        String dbUrl = properties.getProperty("db.url");
+        String dbUser = properties.getProperty("db.user");
+        String dbPassword = properties.getProperty("db.password");
+
+        connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
 
         onSetUpBeforeTransaction();
         connection.setAutoCommit(false); // Start the Transaction:
@@ -41,4 +49,15 @@ public abstract class TransactionalTestBase {
     protected void onTearDownInTransaction() throws Exception {}
 
     protected void onTearDownAfterTransaction() throws Exception {}
+
+    private static Properties getConfigProperties() throws Exception {
+        try(InputStream inputStream = TransactionalTestBase.class.getClassLoader().getResourceAsStream("config.properties")) {
+
+            Properties prop = new Properties();
+
+            prop.load(inputStream);
+
+            return prop;
+        }
+    }
 }
