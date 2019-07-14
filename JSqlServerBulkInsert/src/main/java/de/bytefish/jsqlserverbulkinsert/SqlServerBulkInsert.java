@@ -12,6 +12,7 @@ import de.bytefish.jsqlserverbulkinsert.records.SqlServerRecord;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.stream.Stream;
 
 public class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInsert<TEntity> {
@@ -43,5 +44,13 @@ public class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInsert<TEntit
             // Wrap it in a RunTimeException to provide a nice API:
             throw new RuntimeException(e);
         }
+    }
+
+    public void saveAll(Connection connection, Collection<TEntity> entities) throws SQLException {
+        if(entities == null) {
+            throw new IllegalArgumentException("entities");
+        }
+
+        saveAll(connection, entities.stream());
     }
 }
