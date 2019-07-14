@@ -16,7 +16,8 @@ public abstract class TransactionalTestBase {
 
     @Before
     public void setUp() throws Exception {
-        connection = DriverManager.getConnection("jdbc:sqlserver://localhost:1433;databaseName=TestDatabase", "philipp", "test_pwd");
+        //connection = DriverManager.getConnection("jdbc:sqlserver://localhost:1433;databaseName=TestDatabase", "philipp", "test_pwd");
+        connection = DriverManager.getConnection("jdbc:sqlserver://localhost;instanceName=MSSQLSERVER2017;databaseName=TestDatabase;", "philipp", "test_pwd");
 
         onSetUpBeforeTransaction();
         connection.setAutoCommit(false); // Start the Transaction:

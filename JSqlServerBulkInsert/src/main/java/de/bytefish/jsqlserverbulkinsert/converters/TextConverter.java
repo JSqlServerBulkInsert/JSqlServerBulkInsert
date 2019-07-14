@@ -3,7 +3,7 @@
 
 package de.bytefish.jsqlserverbulkinsert.converters;
 
-public class CharacterConverter extends BaseConverter<Character> {
+public class TextConverter extends BaseConverter<Character> {
     @Override
     public Object internalConvert(Character value) {
         return value;

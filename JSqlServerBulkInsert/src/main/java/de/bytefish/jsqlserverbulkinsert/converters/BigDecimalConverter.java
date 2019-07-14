@@ -4,12 +4,15 @@
 package de.bytefish.jsqlserverbulkinsert.converters;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class BigDecimalConverter extends BaseConverter<BigDecimal> {
 
     private final int scale;
+    private final RoundingMode roundingMode;
 
-    public BigDecimalConverter(int scale) {
+    public BigDecimalConverter(int scale, RoundingMode roundingMode) {
+        this.roundingMode = roundingMode;
         this.scale = scale;
     }
 

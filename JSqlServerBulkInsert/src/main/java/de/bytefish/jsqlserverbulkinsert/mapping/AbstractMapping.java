@@ -10,6 +10,7 @@ import de.bytefish.jsqlserverbulkinsert.model.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.*;
@@ -48,15 +49,40 @@ public abstract class AbstractMapping<TEntity> {
     // region Text Functions
 
     protected void mapChar(String columnName, Function<TEntity, Character> propertyGetter) {
-        mapProperty(columnName, Types.CHAR, propertyGetter, new CharacterConverter());
+        mapProperty(columnName, Types.CHAR, propertyGetter, new TextConverter());
+    }
+
+    protected void mapNchar(String columnName, Function<TEntity, Character> propertyGetter) {
+        mapProperty(columnName, Types.NCHAR, propertyGetter, new TextConverter());
+    }
+
+    protected void mapClob(String columnName, Function<TEntity, Character> propertyGetter) {
+        mapProperty(columnName, Types.CLOB, propertyGetter, new TextConverter());
     }
 
     protected void mapVarchar(String columnName, Function<TEntity, String> propertyGetter) {
         mapProperty(columnName, Types.VARCHAR, propertyGetter, new VarcharConverter());
     }
 
+    protected void mapLongVarchar(String columnName, Function<TEntity, Character> propertyGetter) {
+        mapProperty(columnName, Types.LONGVARCHAR, propertyGetter, new TextConverter());
+    }
+
     protected void mapNvarchar(String columnName, Function<TEntity, String> propertyGetter) {
         mapProperty(columnName, Types.NVARCHAR, propertyGetter, new NVarcharConverter());
+    }
+
+    protected void mapLongNvarchar(String columnName, Function<TEntity, Character> propertyGetter) {
+        mapProperty(columnName, Types.LONGNVARCHAR, propertyGetter, new TextConverter());
+    }
+
+
+    // endregion
+
+    // region Special Functions
+
+    protected <TProperty>  void mapNull(String columnName, Function<TEntity, TProperty> propertyGetter) {
+        mapProperty(columnName, Types.NULL, propertyGetter, new NullConverter<>());
     }
 
     // endregion
@@ -106,11 +132,14 @@ public abstract class AbstractMapping<TEntity> {
     }
 
     protected void mapNumeric(String columnName, int precision, int scale, Function<TEntity, BigDecimal> propertyGetter) {
-        mapProperty(columnName, Types.NUMERIC, precision, scale, false, propertyGetter, new BigDecimalConverter(scale));
+        mapProperty(columnName, Types.NUMERIC, precision, scale, false, propertyGetter, new BigDecimalConverter(scale, RoundingMode.HALF_UP));
+    }
+    protected void mapNumeric(String columnName, int precision, int scale, RoundingMode roundingMode, Function<TEntity, BigDecimal> propertyGetter) {
+        mapProperty(columnName, Types.NUMERIC, precision, scale, false, propertyGetter, new BigDecimalConverter(scale, roundingMode));
     }
 
     protected void mapDecimal(String columnName, int precision, int scale, Function<TEntity, BigDecimal> propertyGetter) {
-        mapProperty(columnName, Types.DECIMAL, precision, scale, false, propertyGetter, new BigDecimalConverter(scale));
+        mapProperty(columnName, Types.DECIMAL, precision, scale, false, propertyGetter, new BigDecimalConverter(scale, RoundingMode.HALF_UP));
     }
 
     protected void mapReal(String columnName, Function<TEntity, Float> propertyGetter) {
