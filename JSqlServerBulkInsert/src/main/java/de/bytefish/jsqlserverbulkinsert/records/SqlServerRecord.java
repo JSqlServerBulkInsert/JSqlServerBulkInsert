@@ -1,13 +1,14 @@
-// Copyright (c) Philipp Wagner. All rights reserved.
+// Copyright (c) Philipp Wagner and Victor Lee. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 package de.bytefish.jsqlserverbulkinsert.records;
 
 import com.microsoft.sqlserver.jdbc.ISQLServerBulkRecord;
 import com.microsoft.sqlserver.jdbc.SQLServerException;
-import de.bytefish.jsqlserverbulkinsert.model.ColumnDefinition;
 import de.bytefish.jsqlserverbulkinsert.model.ColumnMetaData;
+import de.bytefish.jsqlserverbulkinsert.model.IColumnDefinition;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +25,43 @@ public class SqlServerRecord<TEntity> implements ISQLServerBulkRecord {
 
     private final SqlServerRecordBuilder<TEntity> builder;
 
-    public SqlServerRecord(List<ColumnDefinition<TEntity>> columns, Iterator<TEntity> entities) {
+    @Override
+    public void addColumnMetadata(int positionInSource, String name, int jdbcType, int precision, int scale, DateTimeFormatter dateTimeFormatter) throws SQLServerException {
+        // We can safely ignore ...
+    }
+
+    @Override
+    public void addColumnMetadata(int positionInSource, String name, int jdbcType, int precision, int scale) throws SQLServerException {
+        // We can safely ignore ...
+    }
+
+    @Override
+    public void setTimestampWithTimezoneFormat(String s) {
+        // We can safely ignore ...
+    }
+
+    @Override
+    public void setTimestampWithTimezoneFormat(DateTimeFormatter dateTimeFormatter) {
+        // We can safely ignore ...
+    }
+
+    @Override
+    public void setTimeWithTimezoneFormat(String s) {
+        // We can safely ignore ...
+    }
+
+    @Override
+    public void setTimeWithTimezoneFormat(DateTimeFormatter dateTimeFormatter) {
+        // We can safely ignore ...
+    }
+
+    @Override
+    public DateTimeFormatter getColumnDateTimeFormatter(int i) {
+        // We don't need to implement it ...
+        return null;
+    }
+
+    public SqlServerRecord(List<IColumnDefinition<TEntity>> columns, Iterator<TEntity> entities) {
 
         if(columns == null) {
             throw new IllegalArgumentException("columnDefinition");
@@ -38,7 +75,7 @@ public class SqlServerRecord<TEntity> implements ISQLServerBulkRecord {
 
         // Cache the Column Meta Data, so we don't calculate it for each Record:
         this.columnMetaData = columns.stream()
-                .map(ColumnDefinition::getColumnMetaData)
+                .map(x -> x.getColumnMetaData())
                 .collect(Collectors.toList());
 
         // Build the Object[] values Builder to populate the records faster:

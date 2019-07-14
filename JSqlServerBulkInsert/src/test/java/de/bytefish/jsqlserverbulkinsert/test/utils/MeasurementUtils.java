@@ -1,6 +1,7 @@
-package de.bytefish.jsqlserverbulkinsert.test.utils;
+// Copyright (c) Philipp Wagner and Victor Lee. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import de.bytefish.jsqlserverbulkinsert.functional.Action0;
+package de.bytefish.jsqlserverbulkinsert.test.utils;
 
 import java.time.Duration;
 import java.time.Instant;

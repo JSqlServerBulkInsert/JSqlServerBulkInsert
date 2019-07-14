@@ -14,10 +14,44 @@ You can obtain [JSqlServerBulkInsert] from Maven by adding the following:
 <dependency>
 	<groupId>de.bytefish</groupId>
 	<artifactId>jsqlserverbulkinsert</artifactId>
-	<version>1.5</version>
+	<version>2.0</version>
 </dependency>
 ```
 
+
+## Supported Types ##
+
+Please read up the Microsoft Documentation for understanding the mapping between SQL Server Types and JDBC Data Types:
+
+* (Understanding the JDBC Driver Data Types)[https://docs.microsoft.com/en-us/sql/connect/jdbc/understanding-the-jdbc-driver-data-types]
+
+The following JDBC Types are supported by the library:
+
+* Numeric Types
+    * TINYINT
+    * SMALLINT
+    * INTEGER
+    * BIGINT
+    * NUMERIC
+	* REAL
+    * DOUBLE
+* Date/Time Types
+    * DATE
+    * TIMESTAMP
+    * TIMESTAMP with Timezone
+* Boolean Type
+    * BIT
+* Character / Text Types
+    * CHAR
+    * NCHAR
+    * CLOB
+    * VARCHAR
+    * NVARCHAR
+    * LONGVARCHAR
+    * NLONGVARCHAR
+* Binary Data Types
+    * VARBINARY
+    
 ## Getting Started ##
 
 Imagine ``1,000,000`` Persons should be inserted into an SQL Server database.
@@ -35,9 +69,6 @@ Bulk Inserting ``1,000,000``entities to a SQL Server 2016 database took ``5`` Se
 The domain model could be the ``Person`` class with a First Name, Last Name and a birth date. 
 
 ```java
-// Copyright (c) Philipp Wagner. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
 package de.bytefish.jsqlserverbulkinsert.test.model;
 
 import java.time.LocalDate;
@@ -85,9 +116,6 @@ To bulk insert the ``Person`` data to a SQL Server database it is important to k
 between the Java Object and the Database Columns:
 
 ```java
-// Copyright (c) Philipp Wagner. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
 package de.bytefish.jsqlserverbulkinsert.test.integration;
 
 import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
@@ -98,8 +126,8 @@ public class PersonMapping extends AbstractMapping<Person> {
     public PersonMapping() {
         super("dbo", "UnitTest");
 
-        mapString("FirstName", Person::getFirstName);
-        mapString("LastName", Person::getLastName);
+        mapNvarchar("FirstName", Person::getFirstName);
+        mapNvarchar("LastName", Person::getLastName);
         mapDate("BirthDate", Person::getBirthDate);
     }
 }
@@ -107,7 +135,8 @@ public class PersonMapping extends AbstractMapping<Person> {
 
 ### Construct and use the SqlServerBulkInsert ###
 
-The ``AbstractMapping`` is used to instantiate a ``SqlServerBulkInsert``, which provides a ``saveAll`` method to store a given stream of data.
+The ``AbstractMapping`` is used to instantiate a ``SqlServerBulkInsert``, which provides 
+a ``saveAll`` method to store a given stream of data.
 
 ```java
 // Instantiate the SqlServerBulkInsert class:
@@ -119,15 +148,11 @@ bulkInsert.saveAll(connection, persons.stream());
 And the full Integration Test:
 
 ```java
-// Copyright (c) Philipp Wagner. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
 package de.bytefish.jsqlserverbulkinsert.test.integration;
 
-import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
-import de.bytefish.jsqlserverbulkinsert.test.model.Person;
 import de.bytefish.jsqlserverbulkinsert.SqlServerBulkInsert;
 import de.bytefish.jsqlserverbulkinsert.test.base.TransactionalTestBase;
+import de.bytefish.jsqlserverbulkinsert.test.model.Person;
 import de.bytefish.jsqlserverbulkinsert.test.utils.MeasurementUtils;
 import org.junit.Assert;
 import org.junit.Test;

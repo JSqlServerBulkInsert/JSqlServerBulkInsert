@@ -4,6 +4,7 @@
 package de.bytefish.jsqlserverbulkinsert.test.mapping;
 
 import de.bytefish.jsqlserverbulkinsert.SqlServerBulkInsert;
+import de.bytefish.jsqlserverbulkinsert.extensions.DateTimeExtensions;
 import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
 import de.bytefish.jsqlserverbulkinsert.test.base.TransactionalTestBase;
 import org.junit.Assert;
@@ -35,7 +36,7 @@ public class UTCNanoTwoColumnTest extends TransactionalTestBase {
 		public LocalDateEntityMapping() {
 			super("dbo", "UnitTest");
 
-			mapUTCNano("datecolumn", "timecolumn", TimestampEntity::getUTCNano);
+			DateTimeExtensions.mapUTCNano(this, "datecolumn", "timecolumn", TimestampEntity::getUTCNano);
 		}
 	}
 

@@ -1,30 +1,31 @@
-// Copyright (c) Philipp Wagner. All rights reserved.
+// Copyright (c) Philipp Wagner and Victor Lee. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 package de.bytefish.jsqlserverbulkinsert.mapping;
 
-import de.bytefish.jsqlserverbulkinsert.functional.Func2;
-import de.bytefish.jsqlserverbulkinsert.model.ColumnDefinition;
-import de.bytefish.jsqlserverbulkinsert.model.ColumnMetaData;
-import de.bytefish.jsqlserverbulkinsert.model.TableDefinition;
+import de.bytefish.jsqlserverbulkinsert.converters.*;
+import de.bytefish.jsqlserverbulkinsert.functional.ToBooleanFunction;
+import de.bytefish.jsqlserverbulkinsert.functional.ToFloatFunction;
+import de.bytefish.jsqlserverbulkinsert.model.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.Date;
-import java.sql.Time;
+import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.*;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
 
 public abstract class AbstractMapping<TEntity> {
 
     private TableDefinition table;
 
-    private List<ColumnDefinition<TEntity>> columns;
+    private List<IColumnDefinition<TEntity>> columns;
 
     public AbstractMapping(String tableName)
     {
@@ -37,226 +38,200 @@ public abstract class AbstractMapping<TEntity> {
         this.columns = new ArrayList<>();
     }
 
-    protected void mapBoolean(String columnName, Func2<TEntity, Boolean> propertyGetter) {
-        addColumn(columnName, Types.BIT, propertyGetter);
+    protected void mapBoolean(String columnName, Function<TEntity, Boolean> propertyGetter) {
+        mapProperty(columnName, Types.BIT, propertyGetter, new IdentityConverter<>());
     }
 
-    protected void mapNumeric(String columnName, int precision, int scale, Func2<TEntity, BigDecimal> propertyGetter) {
-
-        // We need to scale the incoming decimal, before writing it to SQL Server:
-        final Func2<TEntity, BigDecimal> wrapper = entity -> {
-
-            BigDecimal result = Optional.ofNullable(propertyGetter
-                    .invoke(entity))
-                    .map(d -> d.setScale(scale, BigDecimal.ROUND_HALF_UP))
-                    .orElse(null);
-
-            return result;
-        };
-
-        addColumn(columnName, Types.NUMERIC, precision, scale, false, wrapper);
+    protected void mapBoolean(String columnName, ToBooleanFunction<TEntity> propertyGetter) {
+        mapProperty(columnName, Types.BIT, (entity) -> propertyGetter.applyAsBoolean(entity), new IdentityConverter());
     }
 
-    protected void mapDecimal(String columnName, int precision, int scale, Func2<TEntity, BigDecimal> propertyGetter)
+    // region Text Functions
+
+    protected void mapChar(String columnName, Function<TEntity, Character> propertyGetter) {
+        mapProperty(columnName, Types.CHAR, propertyGetter, new IdentityConverter());
+    }
+
+    protected void mapNchar(String columnName, Function<TEntity, Character> propertyGetter) {
+        mapProperty(columnName, Types.NCHAR, propertyGetter, new IdentityConverter());
+    }
+
+    protected void mapClob(String columnName, Function<TEntity, Character> propertyGetter) {
+        mapProperty(columnName, Types.CLOB, propertyGetter, new IdentityConverter());
+    }
+
+    protected void mapVarchar(String columnName, Function<TEntity, String> propertyGetter) {
+        mapProperty(columnName, Types.VARCHAR, propertyGetter, new IdentityConverter());
+    }
+
+    protected void mapLongVarchar(String columnName, Function<TEntity, Character> propertyGetter) {
+        mapProperty(columnName, Types.LONGVARCHAR, propertyGetter, new IdentityConverter());
+    }
+
+    protected void mapNvarchar(String columnName, Function<TEntity, String> propertyGetter) {
+        mapProperty(columnName, Types.NVARCHAR, propertyGetter, new IdentityConverter());
+    }
+
+    protected void mapLongNvarchar(String columnName, Function<TEntity, Character> propertyGetter) {
+        mapProperty(columnName, Types.LONGNVARCHAR, propertyGetter, new IdentityConverter());
+    }
+
+
+    // endregion
+
+    // region Special Functions
+
+    protected <TProperty>  void mapNull(String columnName, Function<TEntity, TProperty> propertyGetter) {
+        mapProperty(columnName, Types.NULL, propertyGetter, new NullConverter<>());
+    }
+
+    // endregion
+
+    // region Numeric Functions
+
+    protected void mapTinyInt(String columnName, Function<TEntity, Byte> propertyGetter)
     {
-        // We need to scale the incoming decimal, before writing it to SQL Server:
-        final Func2<TEntity, BigDecimal> wrapper = entity -> {
-
-            BigDecimal result = Optional.ofNullable(propertyGetter
-                    .invoke(entity))
-                    .map(d -> d.setScale(scale, BigDecimal.ROUND_HALF_UP))
-                    .orElse(null);
-
-            return result;
-        };
-
-        addColumn(columnName, Types.DECIMAL, precision, scale, false, wrapper);
+        mapProperty(columnName, Types.TINYINT, propertyGetter, new IdentityConverter());
     }
 
-    protected void mapReal(String columnName, Func2<TEntity, Float> propertyGetter)
+    protected void mapSmallInt(String columnName, Function<TEntity, Short> propertyGetter)
     {
-        addColumn(columnName, Types.REAL, propertyGetter);
+        mapProperty(columnName, Types.SMALLINT, propertyGetter, new IdentityConverter());
     }
 
-    protected void mapBigInt(String columnName, Func2<TEntity, BigInteger> propertyGetter) {
-
-        // SQL Server expects the Big Integer as a Long Value:
-        final Func2<TEntity, Long> wrapper = entity -> {
-            Optional<BigInteger> resultAsBigIntegerOpt = Optional.ofNullable(propertyGetter.invoke(entity));
-
-            return resultAsBigIntegerOpt.map(BigInteger::longValueExact).orElse(null);
-        };
-
-        addColumn(columnName, Types.BIGINT, wrapper);
-    }
-
-    protected void mapBigIntLong(String columnName, Func2<TEntity, Long> propertyGetter, boolean isAutoIncrement) {
-        addColumn(columnName, Types.BIGINT, isAutoIncrement, propertyGetter);
-    }
-
-    protected void mapDate(String columnName, Func2<TEntity, LocalDate> propertyGetter) {
-        addColumn(columnName, Types.DATE, propertyGetter);
-    }
-
-    protected void mapInstant(String columnName, Func2<TEntity, Instant> propertyGetter) {
-        // We need to scale the incoming Instant and cast it to Timestamp so that the scaling sticks, before writing it to SQL Server:
-        final Func2<TEntity, Timestamp> wrapper = entity -> {
-
-            Instant result = propertyGetter.invoke(entity);
-            if (result == null) {
-                return null;
-            }
-            Timestamp castedResult = new Timestamp(result.toEpochMilli());
-            castedResult.setNanos((result.getNano()/100)*100); // round to 100 nanoseconds (precision that SQL server can handle)
-            return castedResult;
-        };
-        addColumn(columnName, Types.TIMESTAMP, wrapper);
-    }
-
-    protected void mapDateTime(String columnName, Func2<TEntity, Timestamp> propertyGetter) {
-        addColumn(columnName, Types.TIMESTAMP, propertyGetter);
-    }
-
-    protected void mapLocalDateTime(String columnName, Func2<TEntity, LocalDateTime> propertyGetter) {
-        // We need to scale the incoming LocalDateTime and cast it to Timestamp so that the scaling sticks, before writing it to SQL Server:
-        final Func2<TEntity, Timestamp> wrapper = entity -> {
-
-            LocalDateTime result = propertyGetter.invoke(entity);
-            if (result == null) {
-                return null;
-            }
-            long epochSeconds = result.toEpochSecond(OffsetDateTime.now().getOffset());
-            Timestamp castedResult = new Timestamp(epochSeconds * 1000); // convert to milliseconds to create the Timestamp
-            castedResult.setNanos((result.getNano()/100)*100); // round to 100 nanoseconds (precision that SQL server can handle)
-            return castedResult;
-        };
-        addColumn(columnName, Types.TIMESTAMP, wrapper);
-    }
-
-    protected void mapUTCNano(String dateColumnName, String timeColumnName, Func2<TEntity, Long> propertyGetter) {
-        // We need to scale the incoming LocalDateTime and cast it to Timestamp so that the scaling sticks, before writing it to SQL Server:
-        final Func2<TEntity, Date> dateWrapper = entity -> {
-            Long result = propertyGetter.invoke(entity);
-            if (result == null) {
-                return null;
-            }
-            AbstractMap.Entry<Long,Integer> convertedDT = convertUTCNanoToEpochSecAndNano(result);
-            return new Date(convertedDT.getKey()*1000);
-        };
-        final Func2<TEntity, String> timeWrapper = entity -> {
-            Long result = propertyGetter.invoke(entity);
-            if (result == null) {
-                return null;
-            }
-            AbstractMap.Entry<Long,Integer> convertedDT = convertUTCNanoToEpochSecAndNano(result);
-            Time t = new Time(convertedDT.getKey() * 1000);
-            return t.toString() + "." + convertedDT.getValue()/100; // send as string bc java.sql.Time supports only millisecond precision!?
-        };
-        addColumn(dateColumnName, Types.DATE, dateWrapper);
-        addColumn(timeColumnName, Types.TIME, timeWrapper);
-    }
-
-    protected void mapUTCNano(String columnName, Func2<TEntity, Long> propertyGetter) {
-        // We need to scale the incoming LocalDateTime and cast it to Timestamp so that the scaling sticks, before writing it to SQL Server:
-        final Func2<TEntity, Timestamp> wrapper = entity -> {
-            Long result = propertyGetter.invoke(entity);
-            if (result == null) {
-                return null;
-            }
-            AbstractMap.Entry<Long,Integer> convertedDT = convertUTCNanoToEpochSecAndNano(result);
-            Timestamp castedResult = new Timestamp(convertedDT.getKey() * 1000); // convert to milliseconds to create the Timestamp
-            castedResult.setNanos(convertedDT.getValue());
-            return castedResult;
-        };
-        addColumn(columnName, Types.TIMESTAMP, wrapper);
-    }
-
-    private static AbstractMap.Entry<Long,Integer> convertUTCNanoToEpochSecAndNano(Long result) {
-        long seconds = result / 1000000000; // loses subsecond data
-        int nanoseconds = (int)(result - (seconds * 1000000000));
-        nanoseconds = (nanoseconds/100)*100; // round to 100 nanoseconds (precision that SQL server can handle)
-        LocalDateTime localDateTime = LocalDateTime.ofEpochSecond(seconds,
-                nanoseconds,
-                ZoneOffset.UTC); // must include this adjustment to counteract the timezone adjustment that the SQL Server JDBC driver makes
-        long epochSeconds = localDateTime.toEpochSecond(OffsetDateTime.now().getOffset());
-        return new AbstractMap.SimpleEntry<>(epochSeconds, nanoseconds);
-    }
-
-    protected void mapDouble(String columnName, Func2<TEntity, Double> propertyGetter)
+    protected void mapSmallInt(String columnName, boolean isAutoIncrement)
     {
-        addColumn(columnName, Types.DOUBLE, propertyGetter);
+        mapProperty(columnName, Types.SMALLINT, 0, 0, isAutoIncrement, (entity) -> null, new IdentityConverter());
     }
 
-    protected void mapInt(String columnName, Func2<TEntity, Integer> propertyGetter, boolean isAutoIncrement)
+    protected void mapInteger(String columnName, Function<TEntity, Integer> propertyGetter)
     {
-        addColumn(columnName, Types.INTEGER, isAutoIncrement, propertyGetter);
+        mapProperty(columnName, Types.INTEGER, propertyGetter, new IdentityConverter());
     }
 
-    protected void mapSmallInt(String columnName, Func2<TEntity, Short> propertyGetter, boolean isAutoIncrement)
+    protected void mapInteger(String columnName, boolean isAutoIncrement)
     {
-        addColumn(columnName, Types.SMALLINT, isAutoIncrement, propertyGetter);
+        mapProperty(columnName, Types.INTEGER, 0, 0, isAutoIncrement, (entity) -> null, new IdentityConverter());
     }
 
-    protected void mapTinyInt(String columnName, Func2<TEntity, Byte> propertyGetter)
+    protected void mapInteger(String columnName, ToIntFunction<TEntity> propertyGetter)
     {
-        addColumn(columnName, Types.TINYINT, propertyGetter);
+        mapProperty(columnName, Types.INTEGER, (entity) -> propertyGetter.applyAsInt(entity), new IdentityConverter());
     }
 
-    protected void mapTimeWithTimeZone(String columnName, Func2<TEntity, OffsetTime> propertyGetter) {
-        addColumn(columnName, 2013, propertyGetter);
+    protected void mapLong(String columnName, Function<TEntity, Long> propertyGetter) {
+        mapProperty(columnName, Types.BIGINT, propertyGetter, new IdentityConverter());
     }
 
-    protected void mapDateTimeWithTimeZone(String columnName, Func2<TEntity, OffsetDateTime> propertyGetter) {
-        addColumn(columnName, 2014, propertyGetter);
+    protected void mapLong(String columnName, boolean isAutoIncrement) {
+        mapProperty(columnName, Types.BIGINT, 0, 0, isAutoIncrement, (entity) -> null, new IdentityConverter());
     }
 
-    protected void mapString(String columnName, Func2<TEntity, String> propertyGetter) {
-        addColumn(columnName, Types.NVARCHAR, propertyGetter);
+    protected void mapLong(String columnName, ToLongFunction<TEntity> propertyGetter) {
+        mapProperty(columnName, Types.BIGINT,  (entity) -> propertyGetter.applyAsLong(entity), new IdentityConverter());
     }
 
-    protected void mapVarBinary(String columnName, int maxLength, Func2<TEntity, byte[]> propertyGetter) {
-        addColumn(columnName, Types.VARBINARY, maxLength, 0, false, propertyGetter);
+    protected void mapNumeric(String columnName, int precision, int scale, Function<TEntity, BigDecimal> propertyGetter) {
+        mapProperty(columnName, Types.NUMERIC, precision, scale, false, propertyGetter, new BigDecimalConverter(scale, RoundingMode.HALF_UP));
+    }
+    protected void mapNumeric(String columnName, int precision, int scale, RoundingMode roundingMode, Function<TEntity, BigDecimal> propertyGetter) {
+        mapProperty(columnName, Types.NUMERIC, precision, scale, false, propertyGetter, new BigDecimalConverter(scale, roundingMode));
     }
 
-    private <TProperty> void addColumn(String name, int type, boolean isAutoIncrement, Func2<TEntity, TProperty> propertyGetter)
-    {
-        // Create the current Column Meta Data:
-        ColumnMetaData columnMetaData = new ColumnMetaData(name, type, 0, 0, isAutoIncrement);
-
-        // Add a new Column with the Meta Data and Property Getter:
-        addColumn(columnMetaData, propertyGetter);
+    protected void mapDecimal(String columnName, int precision, int scale, Function<TEntity, BigDecimal> propertyGetter) {
+        mapProperty(columnName, Types.DECIMAL, precision, scale, false, propertyGetter, new BigDecimalConverter(scale, RoundingMode.HALF_UP));
     }
 
-    private <TProperty> void addColumn(String name, int type, Func2<TEntity, TProperty> propertyGetter)
+    protected void mapReal(String columnName, Function<TEntity, Float> propertyGetter) {
+        mapProperty(columnName, Types.REAL, propertyGetter, new IdentityConverter());
+    }
+
+    protected void mapReal(String columnName, ToFloatFunction<TEntity> propertyGetter) {
+        mapProperty(columnName, Types.REAL, (entity) -> propertyGetter.applyAsFloat(entity), new IdentityConverter());
+    }
+
+    protected void mapBigInt(String columnName, Function<TEntity, BigInteger> propertyGetter) {
+        mapProperty(columnName, Types.BIGINT, propertyGetter, new BigIntegerConverter());
+    }
+
+    protected void mapDouble(String columnName, Function<TEntity, Double> propertyGetter) {
+        mapProperty(columnName, Types.DOUBLE, propertyGetter, new IdentityConverter());
+    }
+
+    protected void mapDouble(String columnName, ToDoubleFunction<TEntity> propertyGetter) {
+        mapProperty(columnName, Types.DOUBLE, (entity) -> propertyGetter.applyAsDouble(entity), new IdentityConverter());
+    }
+
+    // endregion
+
+    // region Time Functions
+
+    protected void mapDate(String columnName, Function<TEntity, LocalDate> propertyGetter) {
+        mapProperty(columnName, Types.DATE, propertyGetter, new IdentityConverter());
+    }
+
+    protected void mapInstant(String columnName, Function<TEntity, Instant> propertyGetter) {
+
+        mapProperty(columnName, Types.TIMESTAMP, propertyGetter, new InstantConverter());
+    }
+
+    protected void mapDateTime(String columnName, Function<TEntity, Timestamp> propertyGetter) {
+        mapProperty(columnName, Types.TIMESTAMP, propertyGetter, new IdentityConverter());
+    }
+
+    protected void mapLocalDateTime(String columnName, Function<TEntity, LocalDateTime> propertyGetter) {
+        mapProperty(columnName, Types.TIMESTAMP, propertyGetter, new LocalDateTimeConverter());
+    }
+
+    protected void mapTimeWithTimeZone(String columnName, Function<TEntity, OffsetTime> propertyGetter) {
+        mapProperty(columnName, SqlServerTypes.TimeWithTimeZone, propertyGetter, new IdentityConverter());
+    }
+
+    protected void mapDateTimeWithTimeZone(String columnName, Function<TEntity, OffsetDateTime> propertyGetter) {
+        mapProperty(columnName, SqlServerTypes.DateTimeWithTimeZone, propertyGetter, new IdentityConverter());
+    }
+
+    // endregion
+
+    // region Binary
+
+    protected void mapVarBinary(String columnName, int maxLength, Function<TEntity, byte[]> propertyGetter) {
+        mapProperty(columnName, Types.VARBINARY, maxLength, 0, false, propertyGetter, new IdentityConverter());
+    }
+
+    // endregion
+
+    public <TProperty> void mapProperty(String name, int type, Function<TEntity, TProperty> propertyGetter, IConverter<TProperty> converter)
     {
         // Create the current Column Meta Data:
         ColumnMetaData columnMetaData = new ColumnMetaData(name, type);
 
         // Add a new Column with the Meta Data and Property Getter:
-        addColumn(columnMetaData, propertyGetter);
+        addColumn(columnMetaData, propertyGetter, converter);
     }
 
-    private <TProperty> void addColumn(String name, int type, int precision, int scale, boolean isAutoIncrement, Func2<TEntity, TProperty> propertyGetter)
+    public <TProperty> void mapProperty(String name, int type, int precision, int scale, boolean isAutoIncrement, Function<TEntity, TProperty> propertyGetter, IConverter<TProperty> converter)
     {
         // Create the current Column Meta Data:
         ColumnMetaData columnMetaData = new ColumnMetaData(name, type, precision, scale, isAutoIncrement);
 
         // Add a new Column with the Meta Data and Property Getter:
-
-        addColumn(columnMetaData, propertyGetter);
+        addColumn(columnMetaData, propertyGetter, converter);
     }
 
-    private <TProperty> void addColumn(ColumnMetaData columnMetaData, Func2<TEntity, TProperty> propertyGetter)
+    public <TProperty> void addColumn(ColumnMetaData columnMetaData, Function<TEntity, TProperty> propertyGetter, IConverter<TProperty> converter)
     {
         // Add a new Column with the Meta Data and Property Getter:
-        columns.add(new ColumnDefinition(columnMetaData, propertyGetter));
+        ColumnDefinition<TEntity, TProperty> columnDefinition = new ColumnDefinition<>(columnMetaData, propertyGetter, converter);
+
+        columns.add(columnDefinition);
     }
 
     public TableDefinition getTableDefinition() {
         return table;
     }
 
-    public List<ColumnDefinition<TEntity>> getColumns() {
+    public List<IColumnDefinition<TEntity>> getColumns() {
         return columns;
     }
 }

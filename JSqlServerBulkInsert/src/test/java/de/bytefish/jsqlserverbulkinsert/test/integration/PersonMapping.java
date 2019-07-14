@@ -1,4 +1,4 @@
-// Copyright (c) Philipp Wagner. All rights reserved.
+// Copyright (c) Philipp Wagner and Victor Lee. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 package de.bytefish.jsqlserverbulkinsert.test.integration;
@@ -11,8 +11,8 @@ public class PersonMapping extends AbstractMapping<Person> {
     public PersonMapping() {
         super("dbo", "UnitTest");
 
-        mapString("FirstName", Person::getFirstName);
-        mapString("LastName", Person::getLastName);
+        mapNvarchar("FirstName", Person::getFirstName);
+        mapNvarchar("LastName", Person::getLastName);
         mapDate("BirthDate", Person::getBirthDate);
     }
 }

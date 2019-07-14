@@ -29,7 +29,7 @@ public class IntMappingTest extends TransactionalTestBase {
         public IntegerEntityMapping() {
             super("dbo", "UnitTest");
 
-            mapInt("IntegerValue", IntegerEntity::getValue, false);
+            mapInteger("IntegerValue", IntegerEntity::getValue);
         }
 
     }

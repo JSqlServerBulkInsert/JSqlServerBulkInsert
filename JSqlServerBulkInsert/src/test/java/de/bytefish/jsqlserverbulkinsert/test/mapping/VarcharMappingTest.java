@@ -9,33 +9,35 @@ import de.bytefish.jsqlserverbulkinsert.test.base.TransactionalTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.sql.*;
-import java.time.LocalDate;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 
-public class TimestampTest extends TransactionalTestBase {
+public class VarcharMappingTest extends TransactionalTestBase {
 
-	private class TimestampEntity {
+	private class StringEntity {
 
-		private Timestamp localDate;
+		private final String value;
 
-		private TimestampEntity(Timestamp localDate) {
-			this.localDate = localDate;
+		public StringEntity(String value) {
+			this.value = value;
 		}
 
-		public Timestamp getLocalDate() {
-			return localDate;
+		public String getValue() {
+			return value;
 		}
 	}
 
-	private class LocalDateEntityMapping extends AbstractMapping<TimestampEntity> {
+	private class StringEntityMapping extends AbstractMapping<StringEntity> {
 
-		public LocalDateEntityMapping() {
+		public StringEntityMapping() {
 			super("dbo", "UnitTest");
 
-			mapDateTime("timestampcolumn", TimestampEntity::getLocalDate);
+			mapVarchar("StringValue", StringEntity::getValue);
 		}
+
 	}
 
 	@Override
@@ -45,27 +47,23 @@ public class TimestampTest extends TransactionalTestBase {
 
 	@Test
 	public void bulkInsertPersonDataTest() throws SQLException {
-		// Expected LocalDate (now)
-		Timestamp localDate =  new Timestamp(System.currentTimeMillis());
-		// Create entities
-		List<TimestampEntity> entities = Arrays.asList(new TimestampEntity(localDate));
+		String stringData = "Halli Hallo Hallöchen";
+		// Create the entity
+		List<StringEntity> entities = Arrays.asList(new StringEntity(stringData));
 		// Create the BulkInserter:
-		LocalDateEntityMapping mapping = new LocalDateEntityMapping();
+		StringEntityMapping mapping = new StringEntityMapping();
 		// Now save all entities of a given stream:
 		new SqlServerBulkInsert<>(mapping).saveAll(connection, entities.stream());
-
 		// And assert all have been written to the database:
 		ResultSet rs = getAll();
-		while (rs.next()) {
-
-			// Get the Date we have written:
-			Timestamp date = rs.getTimestamp("timestampcolumn");
-
-			// We should have a date:
-			Assert.assertNotNull(date);
-
-			Assert.assertEquals(localDate.toString(), date.toString());
-		}
+		// We have a Value:
+		Assert.assertEquals(true, rs.next());
+		// Get the string we have written:
+		String resultString = rs.getString("StringValue");
+		// Assert both are equal:
+		Assert.assertEquals(stringData, resultString);
+		// Assert only one record was read:
+		Assert.assertEquals(false, rs.next());
 	}
 
 	private ResultSet getAll() throws SQLException {
@@ -80,11 +78,12 @@ public class TimestampTest extends TransactionalTestBase {
 	private void createTestTable() throws SQLException {
 		String sqlStatement = "CREATE TABLE [dbo].[UnitTest]\n" +
 				"            (\n" +
-				"                timestampcolumn datetime2\n" +
+				"                StringValue VARCHAR(30)\n" +
 				"            );";
 
 		Statement statement = connection.createStatement();
 
 		statement.execute(sqlStatement);
 	}
+
 }
