@@ -3,19 +3,18 @@
 
 package de.bytefish.jsqlserverbulkinsert.records;
 
-import com.microsoft.sqlserver.jdbc.ISQLServerBulkRecord;
+import com.microsoft.sqlserver.jdbc.ISQLServerBulkData;
 import com.microsoft.sqlserver.jdbc.SQLServerException;
 import de.bytefish.jsqlserverbulkinsert.model.ColumnMetaData;
 import de.bytefish.jsqlserverbulkinsert.model.IColumnDefinition;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class SqlServerRecord<TEntity> implements ISQLServerBulkRecord {
+public class SqlServerBulkData<TEntity> implements ISQLServerBulkData {
 
     private final Set<Integer> columnOrdinals;
 
@@ -25,43 +24,7 @@ public class SqlServerRecord<TEntity> implements ISQLServerBulkRecord {
 
     private final SqlServerRecordBuilder<TEntity> builder;
 
-    @Override
-    public void addColumnMetadata(int positionInSource, String name, int jdbcType, int precision, int scale, DateTimeFormatter dateTimeFormatter) throws SQLServerException {
-        // We can safely ignore ...
-    }
-
-    @Override
-    public void addColumnMetadata(int positionInSource, String name, int jdbcType, int precision, int scale) throws SQLServerException {
-        // We can safely ignore ...
-    }
-
-    @Override
-    public void setTimestampWithTimezoneFormat(String s) {
-        // We can safely ignore ...
-    }
-
-    @Override
-    public void setTimestampWithTimezoneFormat(DateTimeFormatter dateTimeFormatter) {
-        // We can safely ignore ...
-    }
-
-    @Override
-    public void setTimeWithTimezoneFormat(String s) {
-        // We can safely ignore ...
-    }
-
-    @Override
-    public void setTimeWithTimezoneFormat(DateTimeFormatter dateTimeFormatter) {
-        // We can safely ignore ...
-    }
-
-    @Override
-    public DateTimeFormatter getColumnDateTimeFormatter(int i) {
-        // We don't need to implement it ...
-        return null;
-    }
-
-    public SqlServerRecord(List<IColumnDefinition<TEntity>> columns, Iterator<TEntity> entities) {
+    public SqlServerBulkData(List<IColumnDefinition<TEntity>> columns, Iterator<TEntity> entities) {
 
         if(columns == null) {
             throw new IllegalArgumentException("columnDefinition");
@@ -111,11 +74,6 @@ public class SqlServerRecord<TEntity> implements ISQLServerBulkRecord {
     @Override
     public int getScale(int i) {
         return columnMetaData.get(i-1).getScale();
-    }
-
-    @Override
-    public boolean isAutoIncrement(int i) {
-        return columnMetaData.get(i-1).isAutoIncrement();
     }
 
     @Override

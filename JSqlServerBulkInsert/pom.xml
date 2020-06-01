@@ -7,7 +7,7 @@
 
     <groupId>de.bytefish</groupId>
     <artifactId>jsqlserverbulkinsert</artifactId>
-    <version>2.0</version>
+    <version>3.0.0</version>
     <name>jsqlserverbulkinsert</name>
     <description>JSqlServerBulkInsert is a Java library for Bulk Inserts to the SQL Server.</description>
     <url>http://www.github.com/bytefish/JSqlServerBulkInsert</url>
@@ -63,7 +63,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sqlserver.version>6.1.0.jre8</sqlserver.version>
+        <sqlserver.version>8.2.2.jre8</sqlserver.version>
     </properties>
 
 
@@ -160,7 +160,7 @@
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
-            <version>7.2.2.jre8</version>
+            <version>${sqlserver.version}</version>
         </dependency>
 
         <dependency>

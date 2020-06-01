@@ -3,12 +3,9 @@
 
 package de.bytefish.jsqlserverbulkinsert;
 
-import com.microsoft.sqlserver.jdbc.ISQLServerBulkRecord;
-import com.microsoft.sqlserver.jdbc.SQLServerBulkCopy;
-import com.microsoft.sqlserver.jdbc.SQLServerBulkCopyOptions;
-import com.microsoft.sqlserver.jdbc.SQLServerException;
+import com.microsoft.sqlserver.jdbc.*;
 import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
-import de.bytefish.jsqlserverbulkinsert.records.SqlServerRecord;
+import de.bytefish.jsqlserverbulkinsert.records.SqlServerBulkData;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -36,7 +33,7 @@ public class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInsert<TEntit
             // The Destination Table to write to:
             sqlServerBulkCopy.setDestinationTableName(mapping.getTableDefinition().GetFullQualifiedTableName());
             // The SQL Records to insert:
-            ISQLServerBulkRecord record = new SqlServerRecord<TEntity>(mapping.getColumns(), entities.iterator());
+            ISQLServerBulkData record = new SqlServerBulkData<TEntity>(mapping.getColumns(), entities.iterator());
             // Finally start the Bulk Copy Process:
             sqlServerBulkCopy.writeToServer(record);
             // Handle Exceptions:
