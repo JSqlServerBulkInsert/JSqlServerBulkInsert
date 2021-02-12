@@ -63,7 +63,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sqlserver.version>8.2.2.jre8</sqlserver.version>
+        <sqlserver.version>9.2.0.jre8</sqlserver.version>
     </properties>
 
 

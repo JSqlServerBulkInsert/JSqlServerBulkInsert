@@ -1,13 +1,18 @@
 package de.bytefish.jsqlserverbulkinsert.test.issues;
 
+import com.microsoft.sqlserver.jdbc.SQLServerResultSet;
+import com.microsoft.sqlserver.jdbc.SQLServerStatement;
 import de.bytefish.jsqlserverbulkinsert.SqlServerBulkInsert;
+import de.bytefish.jsqlserverbulkinsert.model.InformationSchema;
 import de.bytefish.jsqlserverbulkinsert.test.base.TransactionalTestBase;
 import de.bytefish.jsqlserverbulkinsert.test.integration.PersonMapping;
 import de.bytefish.jsqlserverbulkinsert.test.model.Person;
 import de.bytefish.jsqlserverbulkinsert.test.utils.MeasurementUtils;
+import de.bytefish.jsqlserverbulkinsert.util.SchemaUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -26,22 +31,17 @@ public class Issue17Test extends TransactionalTestBase {
     }
 
     @Test
-    public void bulkInsertPersonDataTest() throws SQLException {
-        // The Number of Entities to insert:
-        int numEntities = 1000000;
-        // Create a large list of Persons:
-        List<Person> persons = getPersonList(numEntities);
-        // Create the Mapping:
-        PersonMapping mapping = new PersonMapping();
-        // Create the Bulk Inserter:
-        SqlServerBulkInsert<Person> bulkInsert = new SqlServerBulkInsert<>(mapping);
-        // Measure the Bulk Insert time:
-        MeasurementUtils.MeasureElapsedTime("Bulk Insert 1000000 Entities", () -> {
-            // Now save all entities of a given stream:
-            bulkInsert.saveAll(connection, persons.stream());
-        });
-        // And assert all have been written to the database:
-        Assert.assertEquals(numEntities, getRowCount());
+    public void informationSchemaTest() throws Exception {
+        List<InformationSchema.ColumnInformation> columnInformations = SchemaUtils.getColumnInformations(connection, "dbo", "UnitTest");
+
+        Assert.assertEquals("FirstName", columnInformations.get(0).getColumnName());
+        Assert.assertEquals(1, columnInformations.get(0).getOrdinal());
+
+        Assert.assertEquals("LastName", columnInformations.get(1).getColumnName());
+        Assert.assertEquals(2, columnInformations.get(1).getOrdinal());
+
+        Assert.assertEquals("BirthDate", columnInformations.get(2).getColumnName());
+        Assert.assertEquals(3, columnInformations.get(2).getOrdinal());
     }
 
     private List<Person> getPersonList(int numPersons) {
@@ -60,13 +60,22 @@ public class Issue17Test extends TransactionalTestBase {
         return persons;
     }
 
+    private void getColumns() throws SQLException {
+        String SPsql = "select COLUMN_NAME, ORDINAL_POSITION from INFORMATION_SCHEMA.COLUMNS";   // for stored proc taking 2 parameters
+        PreparedStatement ps = connection.prepareStatement(SPsql);
+        ResultSet rs = ps.executeQuery();
+        if(rs.next()) {
+            System.out.println(rs.getString("COLUMN_NAME") + ", " + rs.getInt("ORDINAL_POSITION"));
+        }
+    }
+
     private boolean createTable() throws SQLException {
 
         String sqlStatement = "CREATE TABLE [dbo].[UnitTest]\n" +
                 "            (\n" +
-                "                BirthDate DATE,\n" +
-                "                LastName NVARCHAR(255),\n" +
                 "                FirstName NVARCHAR(255)\n" +
+                "                , LastName NVARCHAR(255)\n" +
+                "                , BirthDate DATE\n" +
                 "            );";
 
         Statement statement = connection.createStatement();
