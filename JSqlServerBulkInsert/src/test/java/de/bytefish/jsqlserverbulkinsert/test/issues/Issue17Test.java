@@ -64,9 +64,9 @@ public class Issue17Test extends TransactionalTestBase {
 
         String sqlStatement = "CREATE TABLE [dbo].[UnitTest]\n" +
                 "            (\n" +
-                "                FirstName NVARCHAR(255),\n" +
+                "                BirthDate DATE,\n" +
                 "                LastName NVARCHAR(255),\n" +
-                "                BirthDate DATE\n" +
+                "                FirstName NVARCHAR(255)\n" +
                 "            );";
 
         Statement statement = connection.createStatement();
