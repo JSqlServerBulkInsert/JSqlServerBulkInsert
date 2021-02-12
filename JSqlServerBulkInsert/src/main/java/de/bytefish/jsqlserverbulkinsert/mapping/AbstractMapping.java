@@ -42,7 +42,7 @@ public abstract class AbstractMapping<TEntity> {
         mapProperty(columnName, Types.BIT, propertyGetter, new IdentityConverter<>());
     }
 
-    protected void mapBoolean(String columnName, ToBooleanFunction<TEntity> propertyGetter) {
+    protected void mapBooleanPrimitive(String columnName, ToBooleanFunction<TEntity> propertyGetter) {
         mapProperty(columnName, Types.BIT, (entity) -> propertyGetter.applyAsBoolean(entity), new IdentityConverter());
     }
 
@@ -114,7 +114,7 @@ public abstract class AbstractMapping<TEntity> {
         mapProperty(columnName, Types.INTEGER, 0, 0, isAutoIncrement, (entity) -> null, new IdentityConverter());
     }
 
-    protected void mapInteger(String columnName, ToIntFunction<TEntity> propertyGetter)
+    protected void mapIntegerPrimitive(String columnName, ToIntFunction<TEntity> propertyGetter)
     {
         mapProperty(columnName, Types.INTEGER, (entity) -> propertyGetter.applyAsInt(entity), new IdentityConverter());
     }
@@ -127,7 +127,7 @@ public abstract class AbstractMapping<TEntity> {
         mapProperty(columnName, Types.BIGINT, 0, 0, isAutoIncrement, (entity) -> null, new IdentityConverter());
     }
 
-    protected void mapLong(String columnName, ToLongFunction<TEntity> propertyGetter) {
+    protected void mapLongPrimitive(String columnName, ToLongFunction<TEntity> propertyGetter) {
         mapProperty(columnName, Types.BIGINT,  (entity) -> propertyGetter.applyAsLong(entity), new IdentityConverter());
     }
 
@@ -146,7 +146,7 @@ public abstract class AbstractMapping<TEntity> {
         mapProperty(columnName, Types.REAL, propertyGetter, new IdentityConverter());
     }
 
-    protected void mapReal(String columnName, ToFloatFunction<TEntity> propertyGetter) {
+    protected void mapRealPrimitive(String columnName, ToFloatFunction<TEntity> propertyGetter) {
         mapProperty(columnName, Types.REAL, (entity) -> propertyGetter.applyAsFloat(entity), new IdentityConverter());
     }
 
@@ -158,7 +158,7 @@ public abstract class AbstractMapping<TEntity> {
         mapProperty(columnName, Types.DOUBLE, propertyGetter, new IdentityConverter());
     }
 
-    protected void mapDouble(String columnName, ToDoubleFunction<TEntity> propertyGetter) {
+    protected void mapDoublePrimitive(String columnName, ToDoubleFunction<TEntity> propertyGetter) {
         mapProperty(columnName, Types.DOUBLE, (entity) -> propertyGetter.applyAsDouble(entity), new IdentityConverter());
     }
 

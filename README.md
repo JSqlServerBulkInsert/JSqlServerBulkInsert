@@ -18,7 +18,6 @@ You can obtain [JSqlServerBulkInsert] from Maven by adding the following:
 </dependency>
 ```
 
-
 ## Supported Types ##
 
 Please read up the Microsoft Documentation for understanding the mapping between SQL Server Types and JDBC Data Types:
@@ -51,7 +50,74 @@ The following JDBC Types are supported by the library:
     * NLONGVARCHAR
 * Binary Data Types
     * VARBINARY
-    
+   
+   
+## Notes on the Table Mapping ##
+
+The ``SQLServerBulkCopy`` implementation of Microsoft requires **all columns** of the destination table 
+to be defined, even if the columns contain auto-generated values.
+
+So imagine, you have a table, where a auto-incrementing primary key is given:
+
+```sql
+CREATE TABLE [dbo].[UnitTest](
+    PK_ID INT IDENTITY(1,1) PRIMARY KEY,
+    IntegerValue INT
+)
+```
+
+And although our class doesn't contain the Auto-Incrementing Primary Key:
+
+```java
+public class MySampleEntity {
+
+    private final int val;
+
+    public MySampleEntity(int val) {
+        this.val = val;
+    }
+
+    public Integer getVal() {
+        return val;
+    }
+}
+```
+
+We still need to map it in the AbstractMapping like this:
+
+```java
+public class MySampleEntityMapping extends AbstractMapping<MySampleEntity> {
+
+    public MySampleEntityMapping() {
+        super("dbo", "UnitTest");
+
+        mapInteger("PK_ID", x -> null);
+        mapInteger("IntegerValue", x -> x.getVal());
+    }
+}
+```
+
+Or like this to explicitly define the Column as auto-incrementing:
+
+```java
+private class MySampleEntityMapping extends AbstractMapping<MySampleEntity> {
+
+    public MySampleEntityMapping() {
+        super("dbo", "UnitTest");
+
+        mapInteger("PK_ID", true);
+        mapInteger("IntegerValue", x -> x.getVal());
+    }
+}
+```
+
+### Order of Columns ###
+
+If the connected user is granted access to the SQL Server Information Schema, then all mapped columns can 
+be sorted automatically before bulk writing the data. But if the user is not granted access to the Information 
+Schema, **then the mapping and destination schema have to match, and the fields must be mapped in the same order 
+as the destination table**.
+
 ## Getting Started ##
 
 Imagine ``1,000,000`` Persons should be inserted into an SQL Server database.
@@ -63,7 +129,6 @@ Bulk Inserting ``1,000,000``entities to a SQL Server 2016 database took ``5`` Se
 ```
 [Bulk Insert 1000000 Entities] PT4.559S
 ```
-
 ### Domain Model ###
 
 The domain model could be the ``Person`` class with a First Name, Last Name and a birth date. 
