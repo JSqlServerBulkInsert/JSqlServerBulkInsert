@@ -1,5 +1,7 @@
 package de.bytefish.jsqlserverbulkinsert.model;
 
+import java.util.List;
+
 public class InformationSchema {
 
     /**
@@ -22,5 +24,15 @@ public class InformationSchema {
         public int getOrdinal() {
             return ordinal;
         }
+    }
+
+    private final List<ColumnInformation> columns;
+
+    public InformationSchema(List<ColumnInformation> columns) {
+        this.columns = columns;
+    }
+
+    public List<ColumnInformation> getColumns() {
+        return columns;
     }
 }
