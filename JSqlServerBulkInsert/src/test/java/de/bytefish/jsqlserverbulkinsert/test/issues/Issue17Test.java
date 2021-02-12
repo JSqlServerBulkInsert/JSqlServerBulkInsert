@@ -42,7 +42,7 @@ public class Issue17Test extends TransactionalTestBase {
 
     @Test
     public void informationSchemaTest() throws Exception {
-        SchemaMetaData schemaMetaData = SchemaUtils.getInformationSchema(connection, "dbo", "UnitTest");
+        SchemaMetaData schemaMetaData = SchemaUtils.getSchemaMetaData(connection, "dbo", "UnitTest");
 
         Assert.assertEquals("FirstName", schemaMetaData.getColumns().get(0).getColumnName());
         Assert.assertEquals(1, schemaMetaData.getColumns().get(0).getOrdinal());

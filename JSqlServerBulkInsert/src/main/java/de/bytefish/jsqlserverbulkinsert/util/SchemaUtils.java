@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class SchemaUtils {
 
-    public static SchemaMetaData getInformationSchema(Connection connection, String schemaName, String tableName) throws Exception {
+    public static SchemaMetaData getSchemaMetaData(Connection connection, String schemaName, String tableName) throws Exception {
 
         DatabaseMetaData databaseMetaData = connection.getMetaData();
 
@@ -35,17 +35,16 @@ public class SchemaUtils {
         }
 
         // Make sure they are sorted ascending by Ordinals:
-        List<SchemaMetaData.ColumnInformation> sortedColumns = columnInformations
-                .stream()
+        List<SchemaMetaData.ColumnInformation> sortedColumns = columnInformations.stream()
                 .sorted(Comparator.comparing(x -> x.getOrdinal()))
                 .collect(Collectors.toList());
 
         return new SchemaMetaData(sortedColumns);
     }
 
-    private static <TEntity> SchemaMetaData internalGetInformationSchema(Connection connection, AbstractMapping<TEntity> mapping) {
+    private static <TEntity> SchemaMetaData internalGetSchemaMetaData(Connection connection, AbstractMapping<TEntity> mapping) {
         try {
-            return getInformationSchema(connection, mapping.getTableDefinition().getSchema(), mapping.getTableDefinition().getTableName());
+            return getSchemaMetaData(connection, mapping.getTableDefinition().getSchema(), mapping.getTableDefinition().getTableName());
         } catch (Exception e) {
             // TODO Log Exception ...
             return null;
@@ -55,7 +54,7 @@ public class SchemaUtils {
     public static <TEntity> void validateColumnMapping(Connection connection, AbstractMapping<TEntity> mapping) {
 
         // Try to obtain the Schema:
-        SchemaMetaData schemaMetaData = internalGetInformationSchema(connection, mapping);
+        SchemaMetaData schemaMetaData = internalGetSchemaMetaData(connection, mapping);
 
         // We cannot validate, perhaps no permissions to read the Information Schema, we shouldn't
         // stop at all, because this might be valid. Nevertheless it may lead to subtle errors and
@@ -72,8 +71,8 @@ public class SchemaUtils {
 
     public static <TEntity> List<IColumnDefinition<TEntity>> getSortedColumnMappings(Connection connection, AbstractMapping<TEntity> mapping) {
 
-        // Try to get the Schema:
-        SchemaMetaData schemaMetaData = internalGetInformationSchema(connection, mapping);
+        // Try to get the SchemaMetaData:
+        SchemaMetaData schemaMetaData = internalGetSchemaMetaData(connection, mapping);
 
         // We cannot sort the mapping, perhaps no permissions to read the Meta Data, we should just
         // return the original mappings, because this might be intended. Nevertheless it may lead to subtle
@@ -83,7 +82,7 @@ public class SchemaUtils {
         }
 
         // Build a Lookup Table:
-        Map<String, IColumnDefinition<TEntity>> columnDefinitionMap = mapping.getColumns()
+        Map<String, IColumnDefinition<TEntity>> columnDefinitionLookup = mapping.getColumns()
                 .stream()
                 .collect(Collectors.toMap(x -> x.getColumnMetaData().getName(), x -> x));
 
@@ -91,7 +90,7 @@ public class SchemaUtils {
         List<IColumnDefinition<TEntity>> sortedColumns = new ArrayList<>();
 
         for (SchemaMetaData.ColumnInformation columnMetaData : schemaMetaData.getColumns()) {
-            IColumnDefinition<TEntity> columnDefinition = columnDefinitionMap.get(columnMetaData.getColumnName());
+            IColumnDefinition<TEntity> columnDefinition = columnDefinitionLookup.get(columnMetaData.getColumnName());
 
             sortedColumns.add(columnDefinition);
         }
