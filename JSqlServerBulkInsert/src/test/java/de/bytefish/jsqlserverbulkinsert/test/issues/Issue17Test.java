@@ -2,11 +2,11 @@ package de.bytefish.jsqlserverbulkinsert.test.issues;
 
 import de.bytefish.jsqlserverbulkinsert.SqlServerBulkInsert;
 import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
-import de.bytefish.jsqlserverbulkinsert.model.InformationSchema;
+import de.bytefish.jsqlserverbulkinsert.model.SchemaMetaData;
 import de.bytefish.jsqlserverbulkinsert.test.base.TransactionalTestBase;
 import de.bytefish.jsqlserverbulkinsert.test.model.Person;
 import de.bytefish.jsqlserverbulkinsert.test.utils.MeasurementUtils;
-import de.bytefish.jsqlserverbulkinsert.util.InformationSchemaUtils;
+import de.bytefish.jsqlserverbulkinsert.util.SchemaUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -42,16 +42,16 @@ public class Issue17Test extends TransactionalTestBase {
 
     @Test
     public void informationSchemaTest() throws Exception {
-        InformationSchema informationSchema = InformationSchemaUtils.getInformationSchema(connection, "dbo", "UnitTest");
+        SchemaMetaData schemaMetaData = SchemaUtils.getInformationSchema(connection, "dbo", "UnitTest");
 
-        Assert.assertEquals("FirstName", informationSchema.getColumns().get(0).getColumnName());
-        Assert.assertEquals(1, informationSchema.getColumns().get(0).getOrdinal());
+        Assert.assertEquals("FirstName", schemaMetaData.getColumns().get(0).getColumnName());
+        Assert.assertEquals(1, schemaMetaData.getColumns().get(0).getOrdinal());
 
-        Assert.assertEquals("LastName", informationSchema.getColumns().get(1).getColumnName());
-        Assert.assertEquals(2, informationSchema.getColumns().get(1).getOrdinal());
+        Assert.assertEquals("LastName", schemaMetaData.getColumns().get(1).getColumnName());
+        Assert.assertEquals(2, schemaMetaData.getColumns().get(1).getOrdinal());
 
-        Assert.assertEquals("BirthDate", informationSchema.getColumns().get(2).getColumnName());
-        Assert.assertEquals(3, informationSchema.getColumns().get(2).getOrdinal());
+        Assert.assertEquals("BirthDate", schemaMetaData.getColumns().get(2).getColumnName());
+        Assert.assertEquals(3, schemaMetaData.getColumns().get(2).getOrdinal());
     }
 
     @Test

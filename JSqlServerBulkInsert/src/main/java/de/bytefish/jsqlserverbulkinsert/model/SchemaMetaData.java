@@ -2,7 +2,7 @@ package de.bytefish.jsqlserverbulkinsert.model;
 
 import java.util.List;
 
-public class InformationSchema {
+public class SchemaMetaData {
 
     /**
      * The Column Information with the Column Name and associated Oridnal:
@@ -28,7 +28,7 @@ public class InformationSchema {
 
     private final List<ColumnInformation> columns;
 
-    public InformationSchema(List<ColumnInformation> columns) {
+    public SchemaMetaData(List<ColumnInformation> columns) {
         this.columns = columns;
     }
 

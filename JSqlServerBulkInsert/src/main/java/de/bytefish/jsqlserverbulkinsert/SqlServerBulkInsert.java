@@ -6,9 +6,8 @@ package de.bytefish.jsqlserverbulkinsert;
 import com.microsoft.sqlserver.jdbc.*;
 import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
 import de.bytefish.jsqlserverbulkinsert.model.IColumnDefinition;
-import de.bytefish.jsqlserverbulkinsert.model.InformationSchema;
 import de.bytefish.jsqlserverbulkinsert.records.SqlServerBulkData;
-import de.bytefish.jsqlserverbulkinsert.util.InformationSchemaUtils;
+import de.bytefish.jsqlserverbulkinsert.util.SchemaUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -31,7 +30,7 @@ public class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInsert<TEntit
 
     public void saveAll(Connection connection, SQLServerBulkCopyOptions options, Stream<TEntity> entities) {
 
-        InformationSchemaUtils.validateColumnMapping(connection, mapping);
+        SchemaUtils.validateColumnMapping(connection, mapping);
 
         // Create a new SQLServerBulkCopy Instance on the given Connection:
         try (SQLServerBulkCopy sqlServerBulkCopy = new SQLServerBulkCopy(connection)) {
@@ -40,7 +39,7 @@ public class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInsert<TEntit
             // The Destination Table to write to:
             sqlServerBulkCopy.setDestinationTableName(mapping.getTableDefinition().GetFullQualifiedTableName());
             // Resort
-            List<IColumnDefinition<TEntity>> columnMappings = InformationSchemaUtils.getSortedColumnMappings(connection, mapping);
+            List<IColumnDefinition<TEntity>> columnMappings = SchemaUtils.getSortedColumnMappings(connection, mapping);
             // The SQL Records to insert:
             ISQLServerBulkData record = new SqlServerBulkData<TEntity>(columnMappings, entities.iterator());
             // Finally start the Bulk Copy Process:
