@@ -113,10 +113,12 @@ private class MySampleEntityMapping extends AbstractMapping<MySampleEntity> {
 
 ### Order of Columns ###
 
-If the connected user is granted access to the SQL Server Information Schema, then all mapped columns can 
-be sorted automatically before bulk writing the data. But if the user is not granted access to the Information 
-Schema, **then the mapping and destination schema have to match, and the fields must be mapped in the same order 
-as the destination table**.
+The ``SqlServerBulkCopy`` implementation of the Microsoft JDBC driver requires, that the destination schema and 
+mapping have same column order. This is done automatically by querying the metadata of the table and sorting your 
+mappings, before inserting the data.
+
+If this cannot be done automatically, because the JDBC driver does not return the metadata, **then the mapping and 
+destination schema have to match, and the fields must be mapped in the same order as the destination table**.
 
 ## Getting Started ##
 
