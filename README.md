@@ -57,7 +57,7 @@ The following JDBC Types are supported by the library:
 The ``SQLServerBulkCopy`` implementation of Microsoft requires **all columns** of the destination table 
 to be defined, even if the columns contain auto-generated values.
 
-So imagine, you have a table, where a auto-incrementing primary key is given:
+So imagine you have a table with an auto-incrementing primary key:
 
 ```sql
 CREATE TABLE [dbo].[UnitTest](
