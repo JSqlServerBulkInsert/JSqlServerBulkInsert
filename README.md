@@ -14,7 +14,7 @@ You can obtain [JSqlServerBulkInsert] from Maven by adding the following:
 <dependency>
 	<groupId>de.bytefish</groupId>
 	<artifactId>jsqlserverbulkinsert</artifactId>
-	<version>3.0.0</version>
+	<version>4.0.0</version>
 </dependency>
 ```
 

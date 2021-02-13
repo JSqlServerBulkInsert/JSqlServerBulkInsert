@@ -7,10 +7,7 @@ import de.bytefish.jsqlserverbulkinsert.model.SchemaMetaData;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SchemaUtils {
@@ -56,14 +53,14 @@ public class SchemaUtils {
         // Try to obtain the Schema:
         SchemaMetaData schemaMetaData = internalGetSchemaMetaData(connection, mapping);
 
-        // We cannot validate, perhaps no permissions to read the Information Schema, we shouldn't
-        // stop at all, because this might be valid. Nevertheless it may lead to subtle errors and
+        // We cannot validate, perhaps no permissions to read the Meta Data? We shouldn't throw an
+        // Exception, because this might be valid. Nevertheless it may lead to subtle errors and
         // we should probably log it in the future:
         if(schemaMetaData == null || schemaMetaData.getColumns() == null || schemaMetaData.getColumns().isEmpty()) {
             return;
         }
 
-        // We cannot continue, if not all columns have been populated:
+        // We have read the DatabaseMetaData and cannot continue, if not all columns have been populated:
         if(mapping.getColumns().size() != schemaMetaData.getColumns().size()) {
             throw new RuntimeException("Destination Table has '" + schemaMetaData.getColumns().size() + "' columns, the Source Mapping has '" + mapping.getColumns().size() +"' columns.");
         }
@@ -84,13 +81,13 @@ public class SchemaUtils {
         // Build a Lookup Table:
         Map<String, IColumnDefinition<TEntity>> columnDefinitionLookup = mapping.getColumns()
                 .stream()
-                .collect(Collectors.toMap(x -> x.getColumnMetaData().getName(), x -> x));
+                .collect(Collectors.toMap(x -> x.getColumnMetaData().getName().toUpperCase(), x -> x));
 
         // Now Sort the Column Definitions:
         List<IColumnDefinition<TEntity>> sortedColumns = new ArrayList<>();
 
         for (SchemaMetaData.ColumnInformation columnMetaData : schemaMetaData.getColumns()) {
-            IColumnDefinition<TEntity> columnDefinition = columnDefinitionLookup.get(columnMetaData.getColumnName());
+            IColumnDefinition<TEntity> columnDefinition = columnDefinitionLookup.get(columnMetaData.getColumnName().toUpperCase());
 
             sortedColumns.add(columnDefinition);
         }
