@@ -1,11 +1,9 @@
 package de.bytefish.jsqlserverbulkinsert.test.issues;
 
-import com.microsoft.sqlserver.jdbc.SQLServerResultSet;
-import com.microsoft.sqlserver.jdbc.SQLServerStatement;
 import de.bytefish.jsqlserverbulkinsert.SqlServerBulkInsert;
-import de.bytefish.jsqlserverbulkinsert.model.InformationSchema;
+import de.bytefish.jsqlserverbulkinsert.mapping.AbstractMapping;
+import de.bytefish.jsqlserverbulkinsert.model.SchemaMetaData;
 import de.bytefish.jsqlserverbulkinsert.test.base.TransactionalTestBase;
-import de.bytefish.jsqlserverbulkinsert.test.integration.PersonMapping;
 import de.bytefish.jsqlserverbulkinsert.test.model.Person;
 import de.bytefish.jsqlserverbulkinsert.test.utils.MeasurementUtils;
 import de.bytefish.jsqlserverbulkinsert.util.SchemaUtils;
@@ -25,6 +23,18 @@ import java.util.List;
  */
 public class Issue17Test extends TransactionalTestBase {
 
+    // A Partial Mapping to check for Ordinal Correctness:
+    public class PartialPersonMapping extends AbstractMapping<Person> {
+
+        public PartialPersonMapping() {
+            super("dbo", "UnitTest");
+
+            mapNvarchar("FirstName", Person::getFirstName);
+            mapDate("BirthDate", Person::getBirthDate);
+            mapNvarchar("LastName", Person::getLastName);
+        }
+    }
+
     @Override
     protected void onSetUpInTransaction() throws Exception {
         createTable();
@@ -32,16 +42,35 @@ public class Issue17Test extends TransactionalTestBase {
 
     @Test
     public void informationSchemaTest() throws Exception {
-        List<InformationSchema.ColumnInformation> columnInformations = SchemaUtils.getColumnInformations(connection, "dbo", "UnitTest");
+        SchemaMetaData schemaMetaData = SchemaUtils.getSchemaMetaData(connection, "dbo", "UnitTest");
 
-        Assert.assertEquals("FirstName", columnInformations.get(0).getColumnName());
-        Assert.assertEquals(1, columnInformations.get(0).getOrdinal());
+        Assert.assertEquals("FirstName", schemaMetaData.getColumns().get(0).getColumnName());
+        Assert.assertEquals(1, schemaMetaData.getColumns().get(0).getOrdinal());
 
-        Assert.assertEquals("LastName", columnInformations.get(1).getColumnName());
-        Assert.assertEquals(2, columnInformations.get(1).getOrdinal());
+        Assert.assertEquals("LastName", schemaMetaData.getColumns().get(1).getColumnName());
+        Assert.assertEquals(2, schemaMetaData.getColumns().get(1).getOrdinal());
 
-        Assert.assertEquals("BirthDate", columnInformations.get(2).getColumnName());
-        Assert.assertEquals(3, columnInformations.get(2).getOrdinal());
+        Assert.assertEquals("BirthDate", schemaMetaData.getColumns().get(2).getColumnName());
+        Assert.assertEquals(3, schemaMetaData.getColumns().get(2).getOrdinal());
+    }
+
+    @Test
+    public void bulkInsertPersonDataTest() throws SQLException {
+        // The Number of Entities to insert:
+        int numEntities = 1000000;
+        // Create a large list of Persons:
+        List<Person> persons = getPersonList(numEntities);
+        // Create the Mapping:
+        PartialPersonMapping mapping = new PartialPersonMapping();
+        // Create the Bulk Inserter:
+        SqlServerBulkInsert<Person> bulkInsert = new SqlServerBulkInsert<>(mapping);
+        // Measure the Bulk Insert time:
+        MeasurementUtils.MeasureElapsedTime("Bulk Insert 1000000 Entities", () -> {
+            // Now save all entities of a given stream:
+            bulkInsert.saveAll(connection, persons.stream());
+        });
+        // And assert all have been written to the database:
+        Assert.assertEquals(numEntities, getRowCount());
     }
 
     private List<Person> getPersonList(int numPersons) {

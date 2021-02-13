@@ -1,6 +1,8 @@
 package de.bytefish.jsqlserverbulkinsert.model;
 
-public class InformationSchema {
+import java.util.List;
+
+public class SchemaMetaData {
 
     /**
      * The Column Information with the Column Name and associated Oridnal:
@@ -22,5 +24,15 @@ public class InformationSchema {
         public int getOrdinal() {
             return ordinal;
         }
+    }
+
+    private final List<ColumnInformation> columns;
+
+    public SchemaMetaData(List<ColumnInformation> columns) {
+        this.columns = columns;
+    }
+
+    public List<ColumnInformation> getColumns() {
+        return columns;
     }
 }
