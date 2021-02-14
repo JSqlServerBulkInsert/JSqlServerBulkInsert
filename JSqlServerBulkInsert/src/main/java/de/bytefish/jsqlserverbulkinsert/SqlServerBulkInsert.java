@@ -17,7 +17,10 @@ import java.util.stream.Stream;
 
 public class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInsert<TEntity> {
 
+    private List<IColumnDefinition<TEntity>> columnMappings;
+
     private final AbstractMapping<TEntity> mapping;
+
 
     public SqlServerBulkInsert(AbstractMapping<TEntity> mapping)
     {
@@ -30,7 +33,7 @@ public class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInsert<TEntit
 
     public void saveAll(Connection connection, SQLServerBulkCopyOptions options, Stream<TEntity> entities) {
 
-        SchemaUtils.validateColumnMapping(connection, mapping);
+        validateAndInitializeWithMetaData(connection);
 
         // Create a new SQLServerBulkCopy Instance on the given Connection:
         try (SQLServerBulkCopy sqlServerBulkCopy = new SQLServerBulkCopy(connection)) {
@@ -39,7 +42,7 @@ public class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInsert<TEntit
             // The Destination Table to write to:
             sqlServerBulkCopy.setDestinationTableName(mapping.getTableDefinition().GetFullQualifiedTableName());
             // Resort
-            List<IColumnDefinition<TEntity>> columnMappings = SchemaUtils.getSortedColumnMappings(connection, mapping);
+            List<IColumnDefinition<TEntity>> columnMappings = this.columnMappings;
             // The SQL Records to insert:
             ISQLServerBulkData record = new SqlServerBulkData<TEntity>(columnMappings, entities.iterator());
             // Finally start the Bulk Copy Process:
@@ -57,5 +60,15 @@ public class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInsert<TEntit
         }
 
         saveAll(connection, entities.stream());
+    }
+
+    private synchronized void validateAndInitializeWithMetaData(Connection connection) {
+        if(columnMappings == null) {
+            // Make sure the mapping is valid:
+            SchemaUtils.validateColumnMapping(connection, mapping);
+
+            // Now set this Bulk Inserters mappings:
+            this.columnMappings = SchemaUtils.getSortedColumnMappings(connection, mapping);
+        }
     }
 }
