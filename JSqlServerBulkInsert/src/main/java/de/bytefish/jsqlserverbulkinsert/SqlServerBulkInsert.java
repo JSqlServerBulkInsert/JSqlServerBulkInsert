@@ -21,7 +21,6 @@ public class SqlServerBulkInsert<TEntity> implements ISqlServerBulkInsert<TEntit
 
     private final AbstractMapping<TEntity> mapping;
 
-
     public SqlServerBulkInsert(AbstractMapping<TEntity> mapping)
     {
         this.mapping = mapping;

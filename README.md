@@ -111,6 +111,23 @@ private class MySampleEntityMapping extends AbstractMapping<MySampleEntity> {
 }
 ```
 
+### Notes on DATETIME Columns ###
+
+If you are trying to map a `LocalDateTime` to a `DATETIME` column, you need to drop the nanoseconds part. A SQL Server `DATETIME` column doesn't have this level of precision.
+
+It can be fixed by using `LocalDateTime#truncatedTo(ChronoUnit.MILLIS`, like this:
+
+```java
+public class Issue21EntityMapping extends AbstractMapping<Issue21Entity> {
+
+    public Issue21EntityMapping() {
+        super("dbo", "UnitTest");
+
+        mapLocalDateTime("LastUpdated", x -> x.getLastUpdate().truncatedTo(ChronoUnit.MILLIS));
+    }
+}
+```
+
 ### Order of Columns ###
 
 The ``SqlServerBulkCopy`` implementation of the Microsoft JDBC driver requires, that the destination schema and 
