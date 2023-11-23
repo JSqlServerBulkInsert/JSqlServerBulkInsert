@@ -14,7 +14,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 public class LocalDateTimeTest extends TransactionalTestBase {
 
@@ -109,15 +111,18 @@ public class LocalDateTimeTest extends TransactionalTestBase {
 			String localds = rs.getString("localtimestampcolumn");
 			String utcds = rs.getString("utctimestampcolumn");
 			// Get the Date we have written:
-			LocalDateTime retreivedLocalDate = rs.getTimestamp("localtimestampcolumn").toLocalDateTime();
-			LocalDateTime retreivedUTCDate = rs.getTimestamp("utctimestampcolumn").toLocalDateTime();
+			LocalDateTime retreivedLocalDate = rs.getObject("localtimestampcolumn", LocalDateTime.class);
+			LocalDateTime retreivedUTCDate = rs.getTimestamp("utctimestampcolumn", Calendar.getInstance(TimeZone.getTimeZone("UTC")))
+					.toInstant()
+					.atZone(ZoneOffset.UTC)
+					.toLocalDateTime();
 
 			// We should have a date:
 			Assert.assertNotNull(retreivedLocalDate);
 			Assert.assertNotNull(retreivedUTCDate);
 
-			Assert.assertEquals(localDate.toString(), retreivedLocalDate.toString());
-			Assert.assertEquals(utcDate.toString(), retreivedUTCDate.toString());
+			Assert.assertEquals(localDate, retreivedLocalDate);
+			Assert.assertEquals(utcDate, retreivedUTCDate);
 		}
 	}
 
@@ -141,13 +146,13 @@ public class LocalDateTimeTest extends TransactionalTestBase {
 			String localds = rs.getString("localtimestampcolumn");
 			String utcds = rs.getString("utctimestampcolumn");
 			// Get the Date we have written:
-			LocalDateTime retreivedLocalDate = rs.getTimestamp("localtimestampcolumn").toLocalDateTime();
-			Timestamp retreivedUTCDate = rs.getTimestamp("utctimestampcolumn");
+			LocalDateTime retrievedLocalDate = rs.getObject("localtimestampcolumn", LocalDateTime.class);
+			LocalDateTime retreivedUTCDate = rs.getObject("utctimestampcolumn", LocalDateTime.class);
 
 			// We should have a date:
-			Assert.assertNotNull(retreivedLocalDate);
+			Assert.assertNotNull(retrievedLocalDate);
 
-			Assert.assertEquals(localDate.toString(), retreivedLocalDate.toString());
+			Assert.assertEquals(localDate, retrievedLocalDate);
 			Assert.assertEquals(null, retreivedUTCDate);
 		}
 	}

@@ -12,8 +12,11 @@ import org.junit.Test;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 public class UTCNanoTest extends TransactionalTestBase {
 
@@ -46,8 +49,10 @@ public class UTCNanoTest extends TransactionalTestBase {
 
 	@Test
 	public void bulkInsertUTCTest() throws SQLException {
+
 		// Expected LocalDate 2017-05-15T12:09:07.161013600
 		long utcNanos = 1494850147161013648L;
+
 		// Create entities
 		List<TimestampEntity> entities = Arrays.asList(new TimestampEntity(utcNanos));
 		// Create the BulkInserter:
@@ -61,14 +66,15 @@ public class UTCNanoTest extends TransactionalTestBase {
 			// for debugging purposes, can look at how the dates are stored in the DB
 			String dbDate = rs.getString("utcnanocolumn");
 			// Get the Date we have written:
-			Timestamp timeStampResult = rs.getTimestamp("utcnanocolumn");
-			LocalDateTime date = timeStampResult.toLocalDateTime();
+			LocalDateTime date = rs
+					.getTimestamp("utcnanocolumn", Calendar.getInstance(TimeZone.getTimeZone("UTC")))
+					.toInstant()
+					.atZone(ZoneOffset.UTC)
+					.toLocalDateTime();
 
 			// We should have a date:
 			Assert.assertNotNull(date);
 
-			Assert.assertEquals("2017-05-15 12:09:07.1610136", dbDate);
-			Assert.assertEquals("2017-05-15 12:09:07.1610136", timeStampResult.toString());
 			Assert.assertEquals("2017-05-15T12:09:07.161013600", date.toString());
 		}
 	}
@@ -101,7 +107,7 @@ public class UTCNanoTest extends TransactionalTestBase {
 
 	private ResultSet getAll() throws SQLException {
 
-		String sqlStatement = "SELECT * FROM dbo.UnitTest";
+		String sqlStatement = "SELECT utcnanocolumn  AT TIME ZONE 'UTC' AS [utcnanocolumn] FROM dbo.UnitTest";
 
 		Statement statement = connection.createStatement();
 

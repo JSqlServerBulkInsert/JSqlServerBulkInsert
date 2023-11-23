@@ -11,6 +11,8 @@ import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.AbstractMap;
 import java.util.function.Function;
 
@@ -44,12 +46,15 @@ public class DateTimeExtensions {
             @Override
             public Object internalConvert(Long value) {
 
-                AbstractMap.SimpleImmutableEntry<Long, Integer> convertedDT = TimestampUtils.convertUtcNanoToEpochSecAndNano(value);
+                // loses subsecond data:
+                long seconds = value / 1000000000;
+                int nanoseconds = (int) (value - (seconds * 1000000000));
 
-                Timestamp castedResult = new Timestamp(convertedDT.getKey() * 1000);
-                castedResult.setNanos(convertedDT.getValue());
+                // Round to 100 nanoseconds (precision that SQL server can handle):
+                nanoseconds = (nanoseconds / 100) * 100;
 
-                return castedResult;
+                // Must include this adjustment to counteract the timezone adjustment that the SQL Server JDBC driver makes:
+                return LocalDateTime.ofEpochSecond(seconds, nanoseconds, ZoneOffset.UTC);
             }
         });
     }

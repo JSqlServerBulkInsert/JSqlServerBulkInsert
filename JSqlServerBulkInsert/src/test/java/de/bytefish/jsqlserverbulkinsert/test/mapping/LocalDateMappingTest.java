@@ -16,8 +16,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 public class LocalDateMappingTest extends TransactionalTestBase {
 
@@ -65,17 +69,17 @@ public class LocalDateMappingTest extends TransactionalTestBase {
         while (rs.next()) {
 
             // Get the Date we have written:
-            Date date = rs.getDate("LocalDate");
+            LocalDate date = rs.getTimestamp("LocalDate", Calendar.getInstance(TimeZone.getTimeZone("UTC")))
+                    .toInstant()
+                    .atZone(ZoneOffset.UTC)
+                    .toLocalDate();
 
             // We should have a date:
             Assert.assertNotNull(date);
 
-            // Get the LocalDate:
-            LocalDate resultDate = date.toLocalDate();
-
-            Assert.assertEquals(localDate.getYear(), resultDate.getYear());
-            Assert.assertEquals(localDate.getMonthValue(), resultDate.getMonthValue());
-            Assert.assertEquals(localDate.getDayOfMonth(), resultDate.getDayOfMonth());
+            Assert.assertEquals(localDate.getYear(), date.getYear());
+            Assert.assertEquals(localDate.getMonthValue(), date.getMonthValue());
+            Assert.assertEquals(localDate.getDayOfMonth(), date.getDayOfMonth());
         }
     }
 
