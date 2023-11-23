@@ -7,7 +7,7 @@
 
     <groupId>de.bytefish</groupId>
     <artifactId>jsqlserverbulkinsert</artifactId>
-    <version>4.0.1</version>
+    <version>5.0.0</version>
     <name>jsqlserverbulkinsert</name>
     <description>JSqlServerBulkInsert is a Java library for Bulk Inserts to the SQL Server.</description>
     <url>http://www.github.com/bytefish/JSqlServerBulkInsert</url>
@@ -49,8 +49,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>17</source>
+                    <target>17</target>
                 </configuration>
             </plugin>
         </plugins>
@@ -63,7 +63,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sqlserver.version>9.2.0.jre8</sqlserver.version>
+        <sqlserver.version>12.4.1.jre11</sqlserver.version>
     </properties>
 
 
@@ -146,7 +146,7 @@
                         </executions>
                         <configuration>
                             <!-- workaround for https://bugs.openjdk.java.net/browse/JDK-8212233 -->
-                            <source>8</source>
+                            <source>17</source>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -166,7 +166,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13.1</version>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
 

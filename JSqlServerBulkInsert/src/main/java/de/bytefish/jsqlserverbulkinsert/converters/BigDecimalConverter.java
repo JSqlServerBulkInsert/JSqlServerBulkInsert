@@ -18,6 +18,6 @@ public class BigDecimalConverter extends BaseConverter<BigDecimal> {
 
     @Override
     public Object internalConvert(BigDecimal value) {
-        return value.setScale(scale, BigDecimal.ROUND_HALF_UP);
+        return value.setScale(scale, roundingMode);
     }
 }
