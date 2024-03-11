@@ -65,7 +65,8 @@ public class IntegrationTest extends TransactionalTestBase {
                 "            (\n" +
                 "                FirstName NVARCHAR(255),\n" +
                 "                LastName NVARCHAR(255),\n" +
-                "                BirthDate DATE\n" +
+                "                BirthDate DATE,\n" +
+                "                Retirement AS (dateadd(year,(60),BirthDate)) \n" +
                 "            );";
 
         Statement statement = connection.createStatement();
