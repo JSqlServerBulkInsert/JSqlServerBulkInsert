@@ -13,6 +13,8 @@ public class Person {
 
     private LocalDate birthDate;
 
+    private LocalDate retiringDate;
+
     public Person() {
     }
 
@@ -38,5 +40,13 @@ public class Person {
 
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
+    }
+
+    public LocalDate getRetiringDate() {
+        return retiringDate;
+    }
+
+    public void setRetiringDate(LocalDate retiringDate) {
+        this.retiringDate = retiringDate;
     }
 }

@@ -23,12 +23,14 @@ public class SchemaUtils {
         List<SchemaMetaData.ColumnInformation> columnInformations = new ArrayList<>();
 
         while (rs.next()) {
-            SchemaMetaData.ColumnInformation columnInformation = new SchemaMetaData.ColumnInformation(
-                    rs.getString("COLUMN_NAME"),
-                    rs.getInt("ORDINAL_POSITION")
-            );
+            if(rs.getString("IS_GENERATEDCOLUMN").equals("NO")) {
+                SchemaMetaData.ColumnInformation columnInformation = new SchemaMetaData.ColumnInformation(
+                        rs.getString("COLUMN_NAME"),
+                        rs.getInt("ORDINAL_POSITION")
+                );
 
-            columnInformations.add(columnInformation);
+                columnInformations.add(columnInformation);
+            }
         }
 
         // Make sure they are sorted ascending by Ordinals:
