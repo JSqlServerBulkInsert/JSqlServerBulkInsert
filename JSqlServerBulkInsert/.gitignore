@@ -11,3 +11,4 @@
 .idea
 .iws
 workspace.xml
+*.iml
